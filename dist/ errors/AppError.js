@@ -1,4 +1,3 @@
-// src/errors/AppError.ts
 /**
  * Base application error class - parent of all custom errors
  */
@@ -14,6 +13,13 @@ export class AppError extends Error {
         this.isOperational = isOperational;
         this.code = code;
         this.details = details;
-        Error.captureStackTrace(this, this.constructor);
+        // حل مشكلة captureStackTrace
+        if (typeof Error.captureStackTrace === 'function') {
+            Error.captureStackTrace(this, this.constructor);
+        }
+        else {
+            // Fallback إذا ما كانت متوفرة
+            this.stack = new Error().stack;
+        }
     }
 }
