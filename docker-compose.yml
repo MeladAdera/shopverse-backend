@@ -18,12 +18,12 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: shopverse-pgadmin
+    container_name: shopverse-pgadmin 
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@shopverse.com
       PGADMIN_DEFAULT_PASSWORD: admin123
     ports:
-      - "8080:8080"
+      - "8080:80"
     networks:
       - shopverse-network
     depends_on:

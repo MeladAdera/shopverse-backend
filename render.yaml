@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: shopverse-backend
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        value: https://shopverse-front-end.vercel.app
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+    healthCheckPath: /api/health
+    autoDeploy: true
+    env: node
+    nodeVersion: 18.18.0
