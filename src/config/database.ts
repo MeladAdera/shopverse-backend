@@ -1,6 +1,5 @@
 // src/config/database.ts
 import { Pool } from 'pg';
-import { env } from './env';
 
 // إنشاء connection pool
 export const pool = new Pool({
