@@ -1,8 +1,7 @@
 {
   "name": "shopverse-backend",
   "version": "1.0.0",
-    "type": "commonjs", 
-
+  "type": "commonjs",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",

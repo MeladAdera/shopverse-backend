@@ -1,3 +1,4 @@
+declare const process: any;
 import app from './app.js';
 import dotenv from 'dotenv';
 import { testConnection } from './config/database.js';
