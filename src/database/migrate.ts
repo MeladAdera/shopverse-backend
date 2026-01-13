@@ -1,6 +1,4 @@
 import { query } from '../config/database.js';
-const path = require('path');
-const fs = require('fs');
 export const runMigrations = async (): Promise<void> => {
   try {
     console.log('🔄 Applying database updates...');
