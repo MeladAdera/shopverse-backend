@@ -3,20 +3,28 @@ import multer from 'multer';
 import { Request, Response, NextFunction } from 'express';
 import { ValidationError } from '../ errors/errorTypes.js';
 
-// استخدم any لتجنب مشاكل TypeScript
-const path = require('path') as any;
-const fs = require('fs') as any;
+// استخدام require مع ignore لتفادي مشاكل TypeScript
+// @ts-ignore
+const path = require('path');
+// @ts-ignore  
+const fs = require('fs');
 
-// تعريف بسيط للأنواع
-interface MulterFile {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  size: number;
-  destination: string;
-  filename: string;
-  path: string;
+// تعريف types للملفات
+declare global {
+  namespace Express {
+    namespace Multer {
+      interface File {
+        fieldname: string;
+        originalname: string;
+        encoding: string;
+        mimetype: string;
+        size: number;
+        destination: string;
+        filename: string;
+        path: string;
+      }
+    }
+  }
 }
 
 // 1. إنشاء مجلدات التحميل إذا لم تكن موجودة
@@ -51,7 +59,7 @@ const allowedMimeTypes: Record<string, string> = {
 // 3. تصفية الملفات - التحقق من النوع
 const fileFilter = (
   req: Request, 
-  file: MulterFile, 
+  file: Express.Multer.File, 
   cb: multer.FileFilterCallback
 ): void => {
   try {
@@ -71,7 +79,7 @@ const fileFilter = (
 const productStorage = multer.diskStorage({
   destination: (
     req: Request,
-    file: MulterFile,
+    file: Express.Multer.File,
     cb: (error: Error | null, destination: string) => void
   ) => {
     cb(null, 'public/products/');
@@ -79,7 +87,7 @@ const productStorage = multer.diskStorage({
   
   filename: (
     req: Request, 
-    file: MulterFile, 
+    file: Express.Multer.File, 
     cb: (error: Error | null, filename: string) => void
   ) => {
     try {
@@ -113,7 +121,7 @@ export const validateProductImages = (
   res: Response, 
   next: NextFunction
 ): void => {
-  const files = req.files as MulterFile[];
+  const files = req.files as Express.Multer.File[];
   
   if (!files || files.length === 0) {
     throw new ValidationError('يجب رفع صورة واحدة على الأقل للمنتج');
@@ -131,7 +139,7 @@ export const validateProductImages = (
 };
 
 // 7. ⭐ دالة للحصول على روابط متعددة للصور
-export const getImageUrls = (files: MulterFile[]): string[] => {
+export const getImageUrls = (files: Express.Multer.File[]): string[] => {
   if (!files || files.length === 0) return [];
   
   return files.map(file => 
@@ -163,9 +171,8 @@ export const validateImageUpload = (
     throw new ValidationError('صورة المنتج مطلوبة');
   }
   
-  const file = req.file as any;
-  if (file.filename) {
-    file.publicUrl = getImageUrl(file.filename);
+  if (req.file.filename) {
+    (req.file as any).publicUrl = getImageUrl(req.file.filename);
   }
   
   next();
@@ -180,11 +187,13 @@ export const deleteFile = (filePath: string): Promise<boolean> => {
       fullPath = path.join('public', filePath);
     }
     
+    // @ts-ignore
     const absolutePath = path.isAbsolute(fullPath) 
       ? fullPath 
+      // @ts-ignore
       : path.join(process.cwd(), fullPath);
     
-    fs.unlink(absolutePath, (error: any) => {
+    fs.unlink(absolutePath, (error) => {
       if (error) {
         console.error(`❌ Failed to delete file: ${absolutePath}`, error);
         resolve(false);
