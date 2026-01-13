@@ -7,10 +7,8 @@ exports.staticFilesConfig = exports.deleteImages = exports.deleteImageByUrl = ex
 // src/config/multer.ts
 const multer_1 = __importDefault(require("multer"));
 const errorTypes_js_1 = require("../ errors/errorTypes.js");
-// استخدام require مع ignore لتفادي مشاكل TypeScript
-// @ts-ignore
+// استخدم any لتجنب مشاكل TypeScript
 const path = require('path');
-// @ts-ignore  
 const fs = require('fs');
 // 1. إنشاء مجلدات التحميل إذا لم تكن موجودة
 const createUploadsFolders = () => {
@@ -119,8 +117,9 @@ const validateImageUpload = (req, res, next) => {
     if (!req.file) {
         throw new errorTypes_js_1.ValidationError('صورة المنتج مطلوبة');
     }
-    if (req.file.filename) {
-        req.file.publicUrl = (0, exports.getImageUrl)(req.file.filename);
+    const file = req.file;
+    if (file.filename) {
+        file.publicUrl = (0, exports.getImageUrl)(file.filename);
     }
     next();
 };
@@ -132,10 +131,8 @@ const deleteFile = (filePath) => {
         if (filePath.startsWith('/products/') || filePath.startsWith('products/')) {
             fullPath = path.join('public', filePath);
         }
-        // @ts-ignore
         const absolutePath = path.isAbsolute(fullPath)
             ? fullPath
-            // @ts-ignore
             : path.join(process.cwd(), fullPath);
         fs.unlink(absolutePath, (error) => {
             if (error) {
