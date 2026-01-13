@@ -1,16 +1,19 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.env = void 0;
 // src/config/env.ts - نسخة أكثر مرونة
-import { z } from 'zod';
-const envSchema = z.object({
+const zod_1 = require("zod");
+const envSchema = zod_1.z.object({
     // Server
-    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-    PORT: z.string().default('5000'),
-    HOST: z.string().default('localhost'),
+    NODE_ENV: zod_1.z.enum(['development', 'production', 'test']).default('development'),
+    PORT: zod_1.z.string().default('5000'),
+    HOST: zod_1.z.string().default('localhost'),
     // Frontend
-    FRONTEND_URL: z.string().url().default('http://localhost:5173'),
+    FRONTEND_URL: zod_1.z.string().url().default('http://localhost:5173'),
     // JWT Secrets - جعلها optional للتطوير مع قيم افتراضية
-    JWT_SECRET: z.string().default('fallback-dev-jwt-secret-change-in-production'),
-    JWT_REFRESH_SECRET: z.string().default('fallback-dev-refresh-secret-change-in-production'),
+    JWT_SECRET: zod_1.z.string().default('fallback-dev-jwt-secret-change-in-production'),
+    JWT_REFRESH_SECRET: zod_1.z.string().default('fallback-dev-refresh-secret-change-in-production'),
     // Database (سيتم إضافتها لاحقاً)
-    DATABASE_URL: z.string().optional(),
+    DATABASE_URL: zod_1.z.string().optional(),
 });
-export const env = envSchema.parse(process.env);
+exports.env = envSchema.parse(process.env);

@@ -1,8 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.corsOptions = void 0;
 const allowedOrigins = [
     'https://shopverse-front-end.vercel.app',
     'http://localhost:5173'
 ];
-export const corsOptions = {
+exports.corsOptions = {
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin)

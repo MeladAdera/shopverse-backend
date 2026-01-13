@@ -1,12 +1,15 @@
-import { adminRepository } from '../repositories/adminRepository.js';
-import { AppError } from '../ errors/AppError.js';
-export const adminService = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.adminService = void 0;
+const adminRepository_js_1 = require("../repositories/adminRepository.js");
+const AppError_js_1 = require("../ errors/AppError.js");
+exports.adminService = {
     // Get all users
     async getUsers(page, limit) {
         if (page < 1 || limit < 1) {
-            throw new AppError('Page number and limit must be greater than zero', 400);
+            throw new AppError_js_1.AppError('Page number and limit must be greater than zero', 400);
         }
-        const result = await adminRepository.getUsers(page, limit);
+        const result = await adminRepository_js_1.adminRepository.getUsers(page, limit);
         return {
             success: true,
             data: {
@@ -23,11 +26,11 @@ export const adminService = {
     // Get specific user
     async getUserById(userId) {
         if (!userId) {
-            throw new AppError('User ID is required', 400);
+            throw new AppError_js_1.AppError('User ID is required', 400);
         }
-        const user = await adminRepository.getUserById(userId);
+        const user = await adminRepository_js_1.adminRepository.getUserById(userId);
         if (!user) {
-            throw new AppError('User not found', 404);
+            throw new AppError_js_1.AppError('User not found', 404);
         }
         return {
             success: true,
@@ -41,17 +44,17 @@ export const adminService = {
      */
     async updateUserStatus(userId, active, currentAdminId) {
         if (!userId) {
-            throw new AppError('User ID is required', 400);
+            throw new AppError_js_1.AppError('User ID is required', 400);
         }
         // 🆕 التحقق: لا يمكن للمسؤول تعطيل نفسه
         if (currentAdminId && userId === currentAdminId && !active) {
-            throw new AppError('You cannot block your own account', 403);
+            throw new AppError_js_1.AppError('You cannot block your own account', 403);
         }
         // 🆕 يمكن إضافة تحقق إضافي: لا يمكن تعطيل مسؤول آخر
         // (إذا كان النظام يريد فقط المدير الأعلى أن يعطل مسؤولين آخرين)
-        const updated = await adminRepository.updateUserStatus(userId, active);
+        const updated = await adminRepository_js_1.adminRepository.updateUserStatus(userId, active);
         if (!updated) {
-            throw new AppError('User not found', 404);
+            throw new AppError_js_1.AppError('User not found', 404);
         }
         return {
             success: true,
@@ -63,11 +66,11 @@ export const adminService = {
     // 🎯 Get dashboard statistics
     async getDashboardStats() {
         const [userStats, productStats, orderStats, revenueStats, recentOrders] = await Promise.all([
-            adminRepository.getUserStats(),
-            adminRepository.getProductStats(),
-            adminRepository.getOrderStats(),
-            adminRepository.getRevenueStats(),
-            adminRepository.getRecentOrders()
+            adminRepository_js_1.adminRepository.getUserStats(),
+            adminRepository_js_1.adminRepository.getProductStats(),
+            adminRepository_js_1.adminRepository.getOrderStats(),
+            adminRepository_js_1.adminRepository.getRevenueStats(),
+            adminRepository_js_1.adminRepository.getRecentOrders()
         ]);
         return {
             success: true,
@@ -89,9 +92,9 @@ export const adminService = {
     // 🆕 Get all orders
     async getOrders(page, limit, status) {
         if (page < 1 || limit < 1) {
-            throw new AppError('Page number and limit must be greater than zero', 400);
+            throw new AppError_js_1.AppError('Page number and limit must be greater than zero', 400);
         }
-        const result = await adminRepository.getOrders(page, limit, status);
+        const result = await adminRepository_js_1.adminRepository.getOrders(page, limit, status);
         return {
             success: true,
             data: {
@@ -107,11 +110,11 @@ export const adminService = {
     },
     async getOrderById(orderId) {
         if (!orderId) {
-            throw new AppError('Order ID is required', 400);
+            throw new AppError_js_1.AppError('Order ID is required', 400);
         }
-        const order = await adminRepository.getOrderById(orderId);
+        const order = await adminRepository_js_1.adminRepository.getOrderById(orderId);
         if (!order) {
-            throw new AppError('Order not found', 404);
+            throw new AppError_js_1.AppError('Order not found', 404);
         }
         return {
             success: true,
@@ -121,16 +124,16 @@ export const adminService = {
     // 🆕 Update order status
     async updateOrderStatus(orderId, status) {
         if (!orderId) {
-            throw new AppError('Order ID is required', 400);
+            throw new AppError_js_1.AppError('Order ID is required', 400);
         }
         // Validate allowed statuses
         const allowedStatuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
         if (!allowedStatuses.includes(status)) {
-            throw new AppError(`Invalid order status. Allowed statuses: ${allowedStatuses.join(', ')}`, 400);
+            throw new AppError_js_1.AppError(`Invalid order status. Allowed statuses: ${allowedStatuses.join(', ')}`, 400);
         }
-        const updated = await adminRepository.updateOrderStatus(orderId, status);
+        const updated = await adminRepository_js_1.adminRepository.updateOrderStatus(orderId, status);
         if (!updated) {
-            throw new AppError('Order not found', 404);
+            throw new AppError_js_1.AppError('Order not found', 404);
         }
         return {
             success: true,
@@ -151,9 +154,9 @@ export const adminService = {
     // 🆕 Get all categories
     async getCategories(page, limit) {
         if (page < 1 || limit < 1) {
-            throw new AppError('Page number and limit must be greater than zero', 400);
+            throw new AppError_js_1.AppError('Page number and limit must be greater than zero', 400);
         }
-        const result = await adminRepository.getCategories(page, limit);
+        const result = await adminRepository_js_1.adminRepository.getCategories(page, limit);
         return {
             success: true,
             data: {
@@ -170,9 +173,9 @@ export const adminService = {
     async createCategory(categoryData) {
         const { name, image_url } = categoryData;
         if (!name || name.trim().length === 0) {
-            throw new AppError('Category name is required', 400);
+            throw new AppError_js_1.AppError('Category name is required', 400);
         }
-        const category = await adminRepository.createCategory({ name, image_url });
+        const category = await adminRepository_js_1.adminRepository.createCategory({ name, image_url });
         return {
             success: true,
             message: 'Category created successfully',
@@ -182,14 +185,14 @@ export const adminService = {
     // 🆕 Update category
     async updateCategory(categoryId, updateData) {
         if (!categoryId) {
-            throw new AppError('Category ID is required', 400);
+            throw new AppError_js_1.AppError('Category ID is required', 400);
         }
         if (updateData.name && updateData.name.trim().length === 0) {
-            throw new AppError('Category name cannot be empty', 400);
+            throw new AppError_js_1.AppError('Category name cannot be empty', 400);
         }
-        const updated = await adminRepository.updateCategory(categoryId, updateData);
+        const updated = await adminRepository_js_1.adminRepository.updateCategory(categoryId, updateData);
         if (!updated) {
-            throw new AppError('Category not found', 404);
+            throw new AppError_js_1.AppError('Category not found', 404);
         }
         return {
             success: true,
@@ -200,11 +203,11 @@ export const adminService = {
     // 🆕 Delete category
     async deleteCategory(categoryId) {
         if (!categoryId) {
-            throw new AppError('Category ID is required', 400);
+            throw new AppError_js_1.AppError('Category ID is required', 400);
         }
-        const deleted = await adminRepository.deleteCategory(categoryId);
+        const deleted = await adminRepository_js_1.adminRepository.deleteCategory(categoryId);
         if (!deleted) {
-            throw new AppError('Category not found', 404);
+            throw new AppError_js_1.AppError('Category not found', 404);
         }
         return {
             success: true,

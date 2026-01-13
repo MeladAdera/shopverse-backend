@@ -1,23 +1,28 @@
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import morgan from 'morgan';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const helmet_1 = __importDefault(require("helmet"));
+const morgan_1 = __importDefault(require("morgan"));
 // Import new configurations
-import { corsOptions } from './config/cors.js';
-import { limiter } from './config/rateLimit.js';
-import { env } from './config/env.js';
+const cors_js_1 = require("./config/cors.js");
+const rateLimit_js_1 = require("./config/rateLimit.js");
+const env_js_1 = require("./config/env.js");
 // Import new error system
-import { errorHandler, notFoundHandler } from './ errors/errorHandler.js';
+const errorHandler_js_1 = require("./ errors/errorHandler.js");
 // Import Routes
-import authRoutes from './routes/authRoutes.js';
-import productRoutes from './routes/productRoutes.js';
-import reviewRoutes from './routes/reviewRoutes.js';
-import adminRoutes from './routes/adminRoutes.js';
-import cartRoutes from './routes/cartRoutes.js';
-import orderRoutes from './routes/orderRoutes.js';
-const app = express();
+const authRoutes_js_1 = __importDefault(require("./routes/authRoutes.js"));
+const productRoutes_js_1 = __importDefault(require("./routes/productRoutes.js"));
+const reviewRoutes_js_1 = __importDefault(require("./routes/reviewRoutes.js"));
+const adminRoutes_js_1 = __importDefault(require("./routes/adminRoutes.js"));
+const cartRoutes_js_1 = __importDefault(require("./routes/cartRoutes.js"));
+const orderRoutes_js_1 = __importDefault(require("./routes/orderRoutes.js"));
+const app = (0, express_1.default)();
 // Security Middlewares
-app.use(helmet({
+app.use((0, helmet_1.default)({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
@@ -28,7 +33,7 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false
 }));
 // CORS Configuration
-app.use(cors(corsOptions));
+app.use((0, cors_1.default)(cors_js_1.corsOptions));
 // في app.js في الباك إند، قبل express.static
 app.use('/public', (req, res, next) => {
     // أضف هذه الـ headers للصور
@@ -36,22 +41,22 @@ app.use('/public', (req, res, next) => {
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     res.setHeader('Access-Control-Allow-Methods', 'GET');
     next();
-}, express.static('public'));
-app.use('/products', express.static('public/products'));
+}, express_1.default.static('public'));
+app.use('/products', express_1.default.static('public/products'));
 // Rate Limiting - varies by environment
-app.use('/api/', env.NODE_ENV === 'production' ? limiter : (req, res, next) => next());
+app.use('/api/', env_js_1.env.NODE_ENV === 'production' ? rateLimit_js_1.limiter : (req, res, next) => next());
 // Body parsing with limits
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express_1.default.json({ limit: '10mb' }));
+app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
 // Logging based on environment
-app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use((0, morgan_1.default)(env_js_1.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 // Routes
 app.get('/api/health', (req, res) => {
     res.status(200).json({
         success: true,
         message: '🛍️ Shopverse Backend is running!',
         timestamp: new Date().toISOString(),
-        environment: env.NODE_ENV,
+        environment: env_js_1.env.NODE_ENV,
         version: '1.0.0'
     });
 });
@@ -64,14 +69,14 @@ app.get('/', (req, res) => {
     });
 });
 // API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api', reviewRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/orders', orderRoutes);
+app.use('/api/auth', authRoutes_js_1.default);
+app.use('/api/products', productRoutes_js_1.default);
+app.use('/api', reviewRoutes_js_1.default);
+app.use('/api/admin', adminRoutes_js_1.default);
+app.use('/api/cart', cartRoutes_js_1.default);
+app.use('/api/orders', orderRoutes_js_1.default);
 // 404 Handler - using new system
-app.use(notFoundHandler);
+app.use(errorHandler_js_1.notFoundHandler);
 // Global Error Handler - using new system
-app.use(errorHandler);
-export default app;
+app.use(errorHandler_js_1.errorHandler);
+exports.default = app;

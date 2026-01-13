@@ -1,9 +1,12 @@
-import { z, ZodError } from 'zod';
-import { ValidationError } from '../ errors/errorTypes.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.authSchemas = exports.validateRequest = void 0;
+const zod_1 = require("zod");
+const errorTypes_js_1 = require("../ errors/errorTypes.js");
 /**
  * middleware للتحقق من صحة البيانات باستخدام Zod
  */
-export const validateRequest = (schema) => {
+const validateRequest = (schema) => {
     return (req, res, next) => {
         try {
             const data = {
@@ -18,12 +21,12 @@ export const validateRequest = (schema) => {
             next();
         }
         catch (error) {
-            if (error instanceof ZodError) {
+            if (error instanceof zod_1.ZodError) {
                 const details = error.errors.map(err => ({
                     field: err.path.join('.'),
                     message: err.message,
                 }));
-                next(new ValidationError('Validation failed', details));
+                next(new errorTypes_js_1.ValidationError('Validation failed', details));
             }
             else {
                 next(error);
@@ -31,21 +34,22 @@ export const validateRequest = (schema) => {
         }
     };
 };
+exports.validateRequest = validateRequest;
 /**
  * schemas جاهزة للاستخدام
  */
-export const authSchemas = {
-    login: z.object({
-        body: z.object({
-            email: z.string().email('Invalid email format'),
-            password: z.string().min(1, 'Password is required'),
+exports.authSchemas = {
+    login: zod_1.z.object({
+        body: zod_1.z.object({
+            email: zod_1.z.string().email('Invalid email format'),
+            password: zod_1.z.string().min(1, 'Password is required'),
         }),
     }),
-    register: z.object({
-        body: z.object({
-            name: z.string().min(2, 'Name must be at least 2 characters'),
-            email: z.string().email('Invalid email format'),
-            password: z.string().min(8, 'Password must be at least 8 characters')
+    register: zod_1.z.object({
+        body: zod_1.z.object({
+            name: zod_1.z.string().min(2, 'Name must be at least 2 characters'),
+            email: zod_1.z.string().email('Invalid email format'),
+            password: zod_1.z.string().min(8, 'Password must be at least 8 characters')
                 .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
                 .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
                 .regex(/\d/, 'Password must contain at least one number'),

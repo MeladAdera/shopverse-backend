@@ -1,49 +1,52 @@
-import { orderService } from '../services/orderService.js';
-import { catchAsync } from '../ errors/errorTypes.js';
-import { ResponseHelper } from '../utils/responseHelper.js';
-import { AppError } from '../ errors/AppError.js';
-export const orderController = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.orderController = void 0;
+const orderService_js_1 = require("../services/orderService.js");
+const errorTypes_js_1 = require("../ errors/errorTypes.js");
+const responseHelper_js_1 = require("../utils/responseHelper.js");
+const AppError_js_1 = require("../ errors/AppError.js");
+exports.orderController = {
     // 🛒 Create new order from cart
-    checkout: catchAsync(async (req, res) => {
+    checkout: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const userId = req.user.id;
         const { shipping_address, shipping_city, shipping_phone } = req.body;
         if (!shipping_address || !shipping_city) {
-            throw new AppError('Shipping address and city are required', 400);
+            throw new AppError_js_1.AppError('Shipping address and city are required', 400);
         }
-        const result = await orderService.checkout(userId, {
+        const result = await orderService_js_1.orderService.checkout(userId, {
             shipping_address,
             shipping_city,
             shipping_phone
         });
-        ResponseHelper.success(res, result.message, result.data, 201);
+        responseHelper_js_1.ResponseHelper.success(res, result.message, result.data, 201);
     }),
     // 🛒 Get user orders
-    getOrders: catchAsync(async (req, res) => {
+    getOrders: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const userId = req.user.id;
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const status = req.query.status;
-        const result = await orderService.getUserOrders(userId, page, limit, status);
-        ResponseHelper.success(res, 'Orders retrieved successfully', result.data);
+        const result = await orderService_js_1.orderService.getUserOrders(userId, page, limit, status);
+        responseHelper_js_1.ResponseHelper.success(res, 'Orders retrieved successfully', result.data);
     }),
     // 🛒 Get specific order
-    getOrderById: catchAsync(async (req, res) => {
+    getOrderById: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const userId = req.user.id;
         const orderId = parseInt(req.params.id);
         if (isNaN(orderId)) {
-            throw new AppError('Invalid order ID', 400);
+            throw new AppError_js_1.AppError('Invalid order ID', 400);
         }
-        const result = await orderService.getUserOrderById(orderId, userId);
-        ResponseHelper.success(res, 'Order details retrieved successfully', result.data);
+        const result = await orderService_js_1.orderService.getUserOrderById(orderId, userId);
+        responseHelper_js_1.ResponseHelper.success(res, 'Order details retrieved successfully', result.data);
     }),
     // 🛒 Cancel order
-    cancelOrder: catchAsync(async (req, res) => {
+    cancelOrder: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const userId = req.user.id;
         const orderId = parseInt(req.params.id);
         if (isNaN(orderId)) {
-            throw new AppError('Invalid order ID', 400);
+            throw new AppError_js_1.AppError('Invalid order ID', 400);
         }
-        const result = await orderService.cancelOrder(orderId, userId);
-        ResponseHelper.success(res, result.message);
+        const result = await orderService_js_1.orderService.cancelOrder(orderId, userId);
+        responseHelper_js_1.ResponseHelper.success(res, result.message);
     })
 };

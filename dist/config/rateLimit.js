@@ -1,6 +1,12 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.developmentLimiter = exports.limiter = void 0;
 // src/config/rateLimit.ts
-import rateLimit from 'express-rate-limit';
-export const limiter = rateLimit({
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
+exports.limiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
     message: {
@@ -11,7 +17,7 @@ export const limiter = rateLimit({
     legacyHeaders: false
 });
 // أكثر تساهلاً لبيئة التطوير
-export const developmentLimiter = rateLimit({
+exports.developmentLimiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,
     max: 1000,
     message: {
@@ -19,4 +25,4 @@ export const developmentLimiter = rateLimit({
         error: 'Too many requests from this IP'
     }
 });
-export default limiter;
+exports.default = exports.limiter;

@@ -1,49 +1,51 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // src/routes/productRoutes.ts
-import { Router } from 'express';
-import { ProductController } from '../controllers/productController.js';
-import { authenticate, requireAdmin } from '../middleware/auth.js';
-import { uploadProductImages, validateProductImages } from '../config/multer.js'; // ⚠️ تأكد من المسار
-const router = Router();
+const express_1 = require("express");
+const productController_js_1 = require("../controllers/productController.js");
+const auth_js_1 = require("../middleware/auth.js");
+const multer_js_1 = require("../config/multer.js"); // ⚠️ تأكد من المسار
+const router = (0, express_1.Router)();
 // ============================================
 // 🔓 Routes PUBLIC (لا تحتاج مصادقة)
 // ============================================
 // 1. جلب جميع المنتجات مع الفلترة
-router.get('/', ProductController.getProducts);
+router.get('/', productController_js_1.ProductController.getProducts);
 // 2. البحث المتقدم عن المنتجات
-router.post('/advanced-search', ProductController.advancedSearch);
+router.post('/advanced-search', productController_js_1.ProductController.advancedSearch);
 // 3. جلب خيارات الفلترة المتاحة
-router.get('/filter-options', ProductController.getFilterOptions);
+router.get('/filter-options', productController_js_1.ProductController.getFilterOptions);
 // 4. جلب المنتجات الأكثر مبيعاً
-router.get('/top-selling', ProductController.getTopSelling);
+router.get('/top-selling', productController_js_1.ProductController.getTopSelling);
 // 5. جلب المنتجات حسب الجنس
-router.get('/gender/:gender', ProductController.getProductsByGender);
+router.get('/gender/:gender', productController_js_1.ProductController.getProductsByGender);
 // 6. جلب المنتجات حسب الموسم
-router.get('/season/:season', ProductController.getProductsBySeason);
+router.get('/season/:season', productController_js_1.ProductController.getProductsBySeason);
 // 7. جلب المنتجات حسب الماركة
-router.get('/brand/:brand', ProductController.getProductsByBrand);
+router.get('/brand/:brand', productController_js_1.ProductController.getProductsByBrand);
 // 8. جلب منتجات حسب التصنيف
-router.get('/category/:categoryId', ProductController.getProductsByCategory);
+router.get('/category/:categoryId', productController_js_1.ProductController.getProductsByCategory);
 // 9. جلب منتج محدد
-router.get('/:id', ProductController.getProduct);
+router.get('/:id', productController_js_1.ProductController.getProduct);
 // ============================================
 // 🔐 Routes PROTECTED (تحتاج مصادقة مسؤول)
 // ============================================
 // 1. إنشاء منتج جديد - مع دعم 3 صور
-router.post('/', authenticate, requireAdmin, uploadProductImages, // ⭐ ⭐ ⭐ ⭐ ⭐ uploadProductImages (بالجمع)
-validateProductImages, // ⭐ ⭐ ⭐ ⭐ ⭐ validateProductImages (بالجمع)
-ProductController.createProduct);
+router.post('/', auth_js_1.authenticate, auth_js_1.requireAdmin, multer_js_1.uploadProductImages, // ⭐ ⭐ ⭐ ⭐ ⭐ uploadProductImages (بالجمع)
+multer_js_1.validateProductImages, // ⭐ ⭐ ⭐ ⭐ ⭐ validateProductImages (بالجمع)
+productController_js_1.ProductController.createProduct);
 // 2. تحديث منتج
-router.put('/:id', authenticate, requireAdmin, ProductController.updateProduct);
+router.put('/:id', auth_js_1.authenticate, auth_js_1.requireAdmin, productController_js_1.ProductController.updateProduct);
 // 3. تحديث صور المنتج - مع دعم 3 صور
-router.patch('/:id/images', authenticate, requireAdmin, uploadProductImages, // ⭐ ⭐ ⭐ ⭐ ⭐ هنا أيضاً
-validateProductImages, // ⭐ ⭐ ⭐ ⭐ ⭐ هنا أيضاً
-ProductController.updateProductImages);
+router.patch('/:id/images', auth_js_1.authenticate, auth_js_1.requireAdmin, multer_js_1.uploadProductImages, // ⭐ ⭐ ⭐ ⭐ ⭐ هنا أيضاً
+multer_js_1.validateProductImages, // ⭐ ⭐ ⭐ ⭐ ⭐ هنا أيضاً
+productController_js_1.ProductController.updateProductImages);
 // 4. تحديث مخزون المنتج
-router.patch('/:id/stock', authenticate, requireAdmin, ProductController.updateProductStock);
+router.patch('/:id/stock', auth_js_1.authenticate, auth_js_1.requireAdmin, productController_js_1.ProductController.updateProductStock);
 // 5. 🔥 NEW: تحديث عداد مبيعات المنتج
-router.patch('/:id/sales', authenticate, requireAdmin, ProductController.updateSalesCount);
+router.patch('/:id/sales', auth_js_1.authenticate, auth_js_1.requireAdmin, productController_js_1.ProductController.updateSalesCount);
 // 6. حذف منتج (Soft Delete)
-router.delete('/:id', authenticate, requireAdmin, ProductController.deleteProduct);
+router.delete('/:id', auth_js_1.authenticate, auth_js_1.requireAdmin, productController_js_1.ProductController.deleteProduct);
 // 7. 🔥 NEW: إحصائيات المنتجات (للمسؤول فقط)
-router.get('/stats/admin', authenticate, requireAdmin, ProductController.getProductStats);
-export default router;
+router.get('/stats/admin', auth_js_1.authenticate, auth_js_1.requireAdmin, productController_js_1.ProductController.getProductStats);
+exports.default = router;

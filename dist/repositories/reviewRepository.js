@@ -1,16 +1,19 @@
-import { query } from '../config/database.js';
-export const reviewRepository = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.reviewRepository = void 0;
+const database_js_1 = require("../config/database.js");
+exports.reviewRepository = {
     // 1️⃣ Create new review
     async create(reviewData) {
         const { user_id, product_id, rating, comment } = reviewData;
-        const result = await query(`INSERT INTO reviews (user_id, product_id, rating, comment) 
+        const result = await (0, database_js_1.query)(`INSERT INTO reviews (user_id, product_id, rating, comment) 
        VALUES ($1, $2, $3, $4) 
        RETURNING *`, [user_id, product_id, rating, comment]);
         return result.rows[0];
     },
     // 2️⃣ Get reviews for a specific product (with user data)
     async getByProductId(productId) {
-        const result = await query(`SELECT r.*, u.name as user_name, u.email as user_email 
+        const result = await (0, database_js_1.query)(`SELECT r.*, u.name as user_name, u.email as user_email 
        FROM reviews r
        JOIN users u ON r.user_id = u.id
        WHERE r.product_id = $1
@@ -19,7 +22,7 @@ export const reviewRepository = {
     },
     // 3️⃣ Get review statistics for a product
     async getSummary(productId) {
-        const result = await query(`SELECT 
+        const result = await (0, database_js_1.query)(`SELECT 
          AVG(rating) as average_rating,
          COUNT(*) as total_reviews,
          COUNT(CASE WHEN rating = 1 THEN 1 END) as rating_1,
@@ -44,12 +47,12 @@ export const reviewRepository = {
     },
     // 4️⃣ Check if user has reviewed the product before
     async userHasReviewed(productId, userId) {
-        const result = await query('SELECT id FROM reviews WHERE product_id = $1 AND user_id = $2', [productId, userId]);
+        const result = await (0, database_js_1.query)('SELECT id FROM reviews WHERE product_id = $1 AND user_id = $2', [productId, userId]);
         return result.rows.length > 0;
     },
     // 5️⃣ Delete review
     async delete(reviewId, userId) {
-        const result = await query('DELETE FROM reviews WHERE id = $1 AND user_id = $2 RETURNING id', [reviewId, userId]);
+        const result = await (0, database_js_1.query)('DELETE FROM reviews WHERE id = $1 AND user_id = $2 RETURNING id', [reviewId, userId]);
         return result.rows.length > 0;
     }
 };

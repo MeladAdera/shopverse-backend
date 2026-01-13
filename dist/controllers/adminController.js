@@ -1,82 +1,85 @@
-import { adminService } from '../services/adminService.js';
-import { catchAsync } from '../ errors/errorTypes.js';
-import { ResponseHelper } from '../utils/responseHelper.js';
-import { AppError } from '../ errors/AppError.js';
-export const adminController = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.adminController = void 0;
+const adminService_js_1 = require("../services/adminService.js");
+const errorTypes_js_1 = require("../ errors/errorTypes.js");
+const responseHelper_js_1 = require("../utils/responseHelper.js");
+const AppError_js_1 = require("../ errors/AppError.js");
+exports.adminController = {
     // 🎯 Get all users
-    getUsers: catchAsync(async (req, res) => {
+    getUsers: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
-        const result = await adminService.getUsers(page, limit);
-        ResponseHelper.success(res, 'Users retrieved successfully', result.data);
+        const result = await adminService_js_1.adminService.getUsers(page, limit);
+        responseHelper_js_1.ResponseHelper.success(res, 'Users retrieved successfully', result.data);
     }),
     // 🎯 Get specific user
-    getUserById: catchAsync(async (req, res) => {
+    getUserById: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const userId = parseInt(req.params.id);
-        const result = await adminService.getUserById(userId);
-        ResponseHelper.success(res, 'User data retrieved successfully', result.data);
+        const result = await adminService_js_1.adminService.getUserById(userId);
+        responseHelper_js_1.ResponseHelper.success(res, 'User data retrieved successfully', result.data);
     }),
     // 🎯 Update user status
-    updateUserStatus: catchAsync(async (req, res) => {
+    updateUserStatus: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const userId = parseInt(req.params.id);
         const { active } = req.body;
         if (typeof active !== 'boolean') {
-            throw new AppError('User status must be true or false', 400);
+            throw new AppError_js_1.AppError('User status must be true or false', 400);
         }
         // 🆕 إرسال ID المسؤول الحالي للتحقق
         const currentAdminId = req.user?.id; // نأخذ ID المسؤول من التوكن
-        const result = await adminService.updateUserStatus(userId, active, currentAdminId);
-        ResponseHelper.success(res, result.message);
+        const result = await adminService_js_1.adminService.updateUserStatus(userId, active, currentAdminId);
+        responseHelper_js_1.ResponseHelper.success(res, result.message);
     }),
-    getDashboardStats: catchAsync(async (req, res) => {
-        const stats = await adminService.getDashboardStats();
-        ResponseHelper.success(res, 'Dashboard statistics retrieved successfully', stats.data);
+    getDashboardStats: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
+        const stats = await adminService_js_1.adminService.getDashboardStats();
+        responseHelper_js_1.ResponseHelper.success(res, 'Dashboard statistics retrieved successfully', stats.data);
     }),
     // 🆕 Get all orders
-    getOrders: catchAsync(async (req, res) => {
+    getOrders: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const status = req.query.status;
-        const result = await adminService.getOrders(page, limit, status);
-        ResponseHelper.success(res, 'Orders retrieved successfully', result.data);
+        const result = await adminService_js_1.adminService.getOrders(page, limit, status);
+        responseHelper_js_1.ResponseHelper.success(res, 'Orders retrieved successfully', result.data);
     }),
     // Get specific order
-    getOrderById: catchAsync(async (req, res) => {
+    getOrderById: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const orderId = parseInt(req.params.id);
-        const result = await adminService.getOrderById(orderId);
-        ResponseHelper.success(res, 'Order details retrieved successfully', result.data);
+        const result = await adminService_js_1.adminService.getOrderById(orderId);
+        responseHelper_js_1.ResponseHelper.success(res, 'Order details retrieved successfully', result.data);
     }),
     // 🆕 Update order status
-    updateOrderStatus: catchAsync(async (req, res) => {
+    updateOrderStatus: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const orderId = parseInt(req.params.id);
         const { status } = req.body;
-        const result = await adminService.updateOrderStatus(orderId, status);
-        ResponseHelper.success(res, result.message);
+        const result = await adminService_js_1.adminService.updateOrderStatus(orderId, status);
+        responseHelper_js_1.ResponseHelper.success(res, result.message);
     }),
     // 🆕 Get all categories
-    getCategories: catchAsync(async (req, res) => {
+    getCategories: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
-        const result = await adminService.getCategories(page, limit);
-        ResponseHelper.success(res, 'Categories retrieved successfully', result.data);
+        const result = await adminService_js_1.adminService.getCategories(page, limit);
+        responseHelper_js_1.ResponseHelper.success(res, 'Categories retrieved successfully', result.data);
     }),
     // 🆕 Create new category
-    createCategory: catchAsync(async (req, res) => {
+    createCategory: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const { name, image_url } = req.body;
-        const result = await adminService.createCategory({ name, image_url });
-        ResponseHelper.success(res, result.message, result.data, 201);
+        const result = await adminService_js_1.adminService.createCategory({ name, image_url });
+        responseHelper_js_1.ResponseHelper.success(res, result.message, result.data, 201);
     }),
     // 🆕 Update category
-    updateCategory: catchAsync(async (req, res) => {
+    updateCategory: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const categoryId = parseInt(req.params.id);
         const updateData = req.body;
-        const result = await adminService.updateCategory(categoryId, updateData);
-        ResponseHelper.success(res, result.message, result.data);
+        const result = await adminService_js_1.adminService.updateCategory(categoryId, updateData);
+        responseHelper_js_1.ResponseHelper.success(res, result.message, result.data);
     }),
     // 🆕 Delete category
-    deleteCategory: catchAsync(async (req, res) => {
+    deleteCategory: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const categoryId = parseInt(req.params.id);
-        const result = await adminService.deleteCategory(categoryId);
-        ResponseHelper.success(res, result.message);
+        const result = await adminService_js_1.adminService.deleteCategory(categoryId);
+        responseHelper_js_1.ResponseHelper.success(res, result.message);
     }),
 };

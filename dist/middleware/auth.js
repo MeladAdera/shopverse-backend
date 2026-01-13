@@ -1,33 +1,36 @@
-import { verifyAccessToken } from '../utils/jwt.js';
-import { userRepository } from '../repositories/userRepository.js';
-import { AuthenticationError, AuthorizationError } from '../ errors/errorTypes.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkUserActive = exports.requireAuth = exports.requireAdmin = exports.authenticate = void 0;
+const jwt_js_1 = require("../utils/jwt.js");
+const userRepository_js_1 = require("../repositories/userRepository.js");
+const errorTypes_js_1 = require("../ errors/errorTypes.js");
 /**
  * Middleware to verify JWT access token
  * 🆕 تم تحديثه لاستخدام getUserStatus بدلاً من findByIdWithPassword
  */
-export const authenticate = async (req, res, next) => {
+const authenticate = async (req, res, next) => {
     try {
         // 1. استخراج التوكن من Authorization header
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            throw new AuthenticationError('Authentication token is required');
+            throw new errorTypes_js_1.AuthenticationError('Authentication token is required');
         }
         // 2. تحليل التوكن من صيغة "Bearer <token>"
         const token = authHeader.split(' ')[1];
         if (!token) {
-            throw new AuthenticationError('Invalid token format');
+            throw new errorTypes_js_1.AuthenticationError('Invalid token format');
         }
         // 3. التحقق من صحة التوكن وفك التشفير
-        const decoded = verifyAccessToken(token);
+        const decoded = (0, jwt_js_1.verifyAccessToken)(token);
         // 🆕 4. التحقق من حالة المستخدم فقط (active) - باستخدام الدالة الجديدة
         // هذا أسرع لأننا نطلب حقل واحد فقط من قاعدة البيانات
-        const userStatus = await userRepository.getUserStatus(decoded.userId);
+        const userStatus = await userRepository_js_1.userRepository.getUserStatus(decoded.userId);
         if (!userStatus) {
-            throw new AuthenticationError('User not found or account deleted');
+            throw new errorTypes_js_1.AuthenticationError('User not found or account deleted');
         }
         // 🆕 5. التحقق من أن المستخدم نشط (غير معطل)
         if (!userStatus.active) {
-            throw new AuthenticationError('Your account has been blocked. Please contact the administrator.');
+            throw new errorTypes_js_1.AuthenticationError('Your account has been blocked. Please contact the administrator.');
         }
         // 6. إضافة بيانات المستخدم من التوكن (البيانات موجودة في التوكن أصلاً)
         req.user = {
@@ -40,31 +43,32 @@ export const authenticate = async (req, res, next) => {
     }
     catch (error) {
         // 🆕 تحسين رسائل الخطأ
-        if (error instanceof AuthenticationError) {
+        if (error instanceof errorTypes_js_1.AuthenticationError) {
             next(error);
         }
         else if (error.name === 'TokenExpiredError') {
-            next(new AuthenticationError('Token has expired'));
+            next(new errorTypes_js_1.AuthenticationError('Token has expired'));
         }
         else if (error.name === 'JsonWebTokenError') {
-            next(new AuthenticationError('Invalid token'));
+            next(new errorTypes_js_1.AuthenticationError('Invalid token'));
         }
         else {
             console.error('Authentication middleware error:', error);
-            next(new AuthenticationError('Authentication failed'));
+            next(new errorTypes_js_1.AuthenticationError('Authentication failed'));
         }
     }
 };
+exports.authenticate = authenticate;
 /**
  * Middleware to enforce admin role access
  */
-export const requireAdmin = (req, res, next) => {
+const requireAdmin = (req, res, next) => {
     try {
         if (!req.user) {
-            throw new AuthenticationError('Authentication required');
+            throw new errorTypes_js_1.AuthenticationError('Authentication required');
         }
         if (req.user.role !== 'admin') {
-            throw new AuthorizationError('Admin access required');
+            throw new errorTypes_js_1.AuthorizationError('Admin access required');
         }
         next();
     }
@@ -72,13 +76,14 @@ export const requireAdmin = (req, res, next) => {
         next(error);
     }
 };
+exports.requireAdmin = requireAdmin;
 /**
  * Middleware to enforce any authenticated user access
  */
-export const requireAuth = (req, res, next) => {
+const requireAuth = (req, res, next) => {
     try {
         if (!req.user) {
-            throw new AuthenticationError('Authentication required');
+            throw new errorTypes_js_1.AuthenticationError('Authentication required');
         }
         next();
     }
@@ -86,22 +91,23 @@ export const requireAuth = (req, res, next) => {
         next(error);
     }
 };
+exports.requireAuth = requireAuth;
 /**
  * 🆕 middleware إضافي للتحقق من حالة المستخدم فقط
  * يمكن استخدامه في routes لا تحتاج إلى توكن ولكن تحتاج إلى تحقق الحالة
  */
-export const checkUserActive = async (req, res, next) => {
+const checkUserActive = async (req, res, next) => {
     try {
         if (!req.user) {
-            throw new AuthenticationError('User not authenticated');
+            throw new errorTypes_js_1.AuthenticationError('User not authenticated');
         }
         // التحقق من حالة المستخدم من قاعدة البيانات باستخدام الدالة الجديدة
-        const userStatus = await userRepository.getUserStatus(req.user.id);
+        const userStatus = await userRepository_js_1.userRepository.getUserStatus(req.user.id);
         if (!userStatus) {
-            throw new AuthenticationError('User not found');
+            throw new errorTypes_js_1.AuthenticationError('User not found');
         }
         if (!userStatus.active) {
-            throw new AuthenticationError('Your account has been blocked');
+            throw new errorTypes_js_1.AuthenticationError('Your account has been blocked');
         }
         next();
     }
@@ -109,3 +115,4 @@ export const checkUserActive = async (req, res, next) => {
         next(error);
     }
 };
+exports.checkUserActive = checkUserActive;

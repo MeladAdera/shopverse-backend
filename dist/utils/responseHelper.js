@@ -1,4 +1,7 @@
-export class ResponseHelper {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ResponseHelper = void 0;
+class ResponseHelper {
     static success(res, message = 'تمت العملية بنجاح', data, statusCode = 200) {
         const response = {
             success: true,
@@ -42,3 +45,4 @@ export class ResponseHelper {
         return res.status(statusCode).json(response);
     }
 }
+exports.ResponseHelper = ResponseHelper;

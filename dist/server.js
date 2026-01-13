@@ -1,9 +1,14 @@
-import app from './app.js';
-import dotenv from 'dotenv';
-import { testConnection } from './config/database.js';
-import { runMigrations } from './database/migrate.js'; // 🆕 Import the update function
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const app_js_1 = __importDefault(require("./app.js"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const database_js_1 = require("./config/database.js");
+const migrate_js_1 = require("./database/migrate.js"); // 🆕 Import the update function
 // Load environment variables early
-dotenv.config();
+dotenv_1.default.config();
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || 'localhost';
 // 🔄 Enhanced startup function
@@ -12,15 +17,15 @@ const startServer = async () => {
         console.log('🔄 Starting server...');
         // 1. Test database connection
         console.log('🔌 Testing database connection...');
-        const isConnected = await testConnection();
+        const isConnected = await (0, database_js_1.testConnection)();
         if (!isConnected) {
             throw new Error('Database connection failed');
         }
         // 2. Run database updates 🆕
         console.log('📊 Updating database...');
-        await runMigrations();
+        await (0, migrate_js_1.runMigrations)();
         // 3. Start server
-        const server = app.listen(PORT, () => {
+        const server = app_js_1.default.listen(PORT, () => {
             console.log(`✅ Server started successfully!`);
             console.log(`🚀 Server running on http://${HOST}:${PORT}`);
             console.log(`📊 Health: http://${HOST}:${PORT}/api/health`);
@@ -51,4 +56,4 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 // 🚀 Start the server
 const server = startServer();
-export default server;
+exports.default = server;

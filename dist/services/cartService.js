@@ -1,12 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.cartService = void 0;
 // 📁 src/services/cartService.ts
-import { cartRepository } from '../repositories/cartRepository.js';
-import { AppError } from '../ errors/AppError.js';
-export const cartService = {
+const cartRepository_js_1 = require("../repositories/cartRepository.js");
+const AppError_js_1 = require("../ errors/AppError.js");
+exports.cartService = {
     // 🛒 جلب محتويات الكارت
     async getCart(userId) {
-        const cart = await cartRepository.getCartWithItems(userId);
-        const totalPrice = await cartRepository.calculateCartTotal(userId);
-        const itemsCount = await cartRepository.getCartItemsCount(userId);
+        const cart = await cartRepository_js_1.cartRepository.getCartWithItems(userId);
+        const totalPrice = await cartRepository_js_1.cartRepository.calculateCartTotal(userId);
+        const itemsCount = await cartRepository_js_1.cartRepository.getCartItemsCount(userId);
         const response = {
             id: cart.id,
             user_id: cart.user_id,
@@ -31,49 +34,49 @@ export const cartService = {
     // 🛒 إضافة منتج للكارت
     async addToCart(userId, productId, quantity) {
         if (!productId || quantity <= 0) {
-            throw new AppError('بيانات غير صالحة', 400);
+            throw new AppError_js_1.AppError('بيانات غير صالحة', 400);
         }
         if (quantity > 10) {
-            throw new AppError('لا يمكن إضافة أكثر من 10 قطع من نفس المنتج', 400);
+            throw new AppError_js_1.AppError('لا يمكن إضافة أكثر من 10 قطع من نفس المنتج', 400);
         }
-        const cart = await cartRepository.getOrCreateCart(userId);
-        await cartRepository.addItemToCart(cart.id, productId, quantity);
+        const cart = await cartRepository_js_1.cartRepository.getOrCreateCart(userId);
+        await cartRepository_js_1.cartRepository.addItemToCart(cart.id, productId, quantity);
         // إرجاع الكارت المحدث
         return this.getCart(userId);
     },
     // 🛒 تحديث كمية منتج في الكارت
     async updateCartItem(userId, cartItemId, quantity) {
         if (quantity <= 0) {
-            throw new AppError('الكمية يجب أن تكون أكبر من الصفر', 400);
+            throw new AppError_js_1.AppError('الكمية يجب أن تكون أكبر من الصفر', 400);
         }
         if (quantity > 10) {
-            throw new AppError('لا يمكن إضافة أكثر من 10 قطع من نفس المنتج', 400);
+            throw new AppError_js_1.AppError('لا يمكن إضافة أكثر من 10 قطع من نفس المنتج', 400);
         }
         // التحقق من ملكية العنصر
-        const ownsItem = await cartRepository.verifyCartItemOwnership(cartItemId, userId);
+        const ownsItem = await cartRepository_js_1.cartRepository.verifyCartItemOwnership(cartItemId, userId);
         if (!ownsItem) {
-            throw new AppError('ليس لديك صلاحية لتعديل هذا العنصر', 403);
+            throw new AppError_js_1.AppError('ليس لديك صلاحية لتعديل هذا العنصر', 403);
         }
-        await cartRepository.updateCartItem(cartItemId, quantity);
+        await cartRepository_js_1.cartRepository.updateCartItem(cartItemId, quantity);
         return this.getCart(userId);
     },
     // 🛒 إزالة منتج من الكارت
     async removeFromCart(userId, cartItemId) {
         // التحقق من ملكية العنصر
-        const ownsItem = await cartRepository.verifyCartItemOwnership(cartItemId, userId);
+        const ownsItem = await cartRepository_js_1.cartRepository.verifyCartItemOwnership(cartItemId, userId);
         if (!ownsItem) {
-            throw new AppError('ليس لديك صلاحية لحذف هذا العنصر', 403);
+            throw new AppError_js_1.AppError('ليس لديك صلاحية لحذف هذا العنصر', 403);
         }
-        const removed = await cartRepository.removeItemFromCart(cartItemId);
+        const removed = await cartRepository_js_1.cartRepository.removeItemFromCart(cartItemId);
         if (!removed) {
-            throw new AppError('العنصر غير موجود في الكارت', 404);
+            throw new AppError_js_1.AppError('العنصر غير موجود في الكارت', 404);
         }
         return this.getCart(userId);
     },
     // 🛒 تفريغ الكارت
     async clearCart(userId) {
-        const cart = await cartRepository.getOrCreateCart(userId);
-        await cartRepository.clearCart(cart.id);
+        const cart = await cartRepository_js_1.cartRepository.getOrCreateCart(userId);
+        await cartRepository_js_1.cartRepository.clearCart(cart.id);
         return {
             success: true,
             message: 'تم تفريغ الكارت بنجاح'
@@ -81,7 +84,7 @@ export const cartService = {
     },
     // 🛒 جلب عدد العناصر في الكارت
     async getCartItemsCount(userId) {
-        const count = await cartRepository.getCartItemsCount(userId);
+        const count = await cartRepository_js_1.cartRepository.getCartItemsCount(userId);
         return {
             success: true,
             data: { count }

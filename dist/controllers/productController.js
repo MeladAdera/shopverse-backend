@@ -1,24 +1,28 @@
+"use strict";
 var _a;
-import { ProductService } from '../services/productService.js';
-import { catchAsync } from '../ errors/errorTypes.js';
-import { ResponseHelper } from '../utils/responseHelper.js';
-import { ValidationError } from '../ errors/errorTypes.js';
-import { getImageUrls } from '../config/multer.js'; // ⭐ استيراد دالة الحصول على روابط الصور
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProductController = void 0;
+const productService_js_1 = require("../services/productService.js");
+const errorTypes_js_1 = require("../ errors/errorTypes.js");
+const responseHelper_js_1 = require("../utils/responseHelper.js");
+const errorTypes_js_2 = require("../ errors/errorTypes.js");
+const multer_js_1 = require("../config/multer.js"); // ⭐ استيراد دالة الحصول على روابط الصور
 /**
  * Product controllers
  */
-export class ProductController {
+class ProductController {
 }
+exports.ProductController = ProductController;
 _a = ProductController;
 /**
  * Create a new product (admin only) - with multiple image upload support
  */
-ProductController.createProduct = catchAsync(async (req, res, next) => {
+ProductController.createProduct = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     // ⭐ UPDATED: الحصول على الملفات المرفوعة (مصفوفة)
     const uploadedFiles = req.files;
     // ⭐ UPDATED: بناء مصفوفة من روابط الصور
     const imageUrls = uploadedFiles && uploadedFiles.length > 0
-        ? getImageUrls(uploadedFiles) // ⭐ استخدام دالة المساعدة
+        ? (0, multer_js_1.getImageUrls)(uploadedFiles) // ⭐ استخدام دالة المساعدة
         : (req.body.image_urls || []);
     // ⭐ UPDATED: إذا كان image_urls سلسلة نصية، حولها إلى مصفوفة
     const finalImageUrls = Array.isArray(imageUrls)
@@ -44,27 +48,27 @@ ProductController.createProduct = catchAsync(async (req, res, next) => {
     const requiredFields = ['name', 'description', 'price', 'category_id'];
     const missingFields = requiredFields.filter(field => !productData[field]);
     if (missingFields.length > 0) {
-        throw new ValidationError(`Required fields missing: ${missingFields.join(', ')}`);
+        throw new errorTypes_js_2.ValidationError(`Required fields missing: ${missingFields.join(', ')}`);
     }
     // ⭐ NEW: Validate images
     if (!productData.image_urls || productData.image_urls.length === 0) {
-        throw new ValidationError('At least one image is required');
+        throw new errorTypes_js_2.ValidationError('At least one image is required');
     }
-    const result = await ProductService.createProduct(productData);
-    return ResponseHelper.created(res, 'Product created successfully', result);
+    const result = await productService_js_1.ProductService.createProduct(productData);
+    return responseHelper_js_1.ResponseHelper.created(res, 'Product created successfully', result);
 });
 /**
  * Get product by ID
  */
-ProductController.getProduct = catchAsync(async (req, res, next) => {
+ProductController.getProduct = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     const productId = parseInt(req.params.id);
-    const product = await ProductService.getProductById(productId);
-    return ResponseHelper.success(res, 'Product retrieved successfully', product);
+    const product = await productService_js_1.ProductService.getProductById(productId);
+    return responseHelper_js_1.ResponseHelper.success(res, 'Product retrieved successfully', product);
 });
 /**
  * Get all products with filtering
  */
-ProductController.getProducts = catchAsync(async (req, res, next) => {
+ProductController.getProducts = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     // 🔥 UPDATED: أضف الحقول الجديدة للفلترة
     const filters = {
         category_id: req.query.category_id ? parseInt(req.query.category_id) : undefined,
@@ -103,13 +107,13 @@ ProductController.getProducts = catchAsync(async (req, res, next) => {
     filters.limit = sanitizeNumber(filters.limit) || 20;
     filters.min_sales = sanitizeNumber(filters.min_sales);
     filters.last_days = sanitizeNumber(filters.last_days);
-    const result = await ProductService.getProducts(filters);
-    return ResponseHelper.success(res, 'Products retrieved successfully', result);
+    const result = await productService_js_1.ProductService.getProducts(filters);
+    return responseHelper_js_1.ResponseHelper.success(res, 'Products retrieved successfully', result);
 });
 /**
  * 🔥 NEW: Advanced product search
  */
-ProductController.advancedSearch = catchAsync(async (req, res, next) => {
+ProductController.advancedSearch = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     const filters = {
         colors: req.body.colors || req.query.colors ?
             (Array.isArray(req.body.colors || req.query.colors)
@@ -167,72 +171,72 @@ ProductController.advancedSearch = catchAsync(async (req, res, next) => {
     filters.genders = sanitizeArray(filters.genders);
     filters.seasons = sanitizeArray(filters.seasons);
     filters.materials = sanitizeArray(filters.materials);
-    const result = await ProductService.advancedSearch(filters);
-    return ResponseHelper.success(res, 'Advanced search completed successfully', result);
+    const result = await productService_js_1.ProductService.advancedSearch(filters);
+    return responseHelper_js_1.ResponseHelper.success(res, 'Advanced search completed successfully', result);
 });
 /**
  * 🔥 NEW: Get available filter options
  */
-ProductController.getFilterOptions = catchAsync(async (req, res, next) => {
-    const filters = await ProductService.getAvailableFilters();
-    return ResponseHelper.success(res, 'Filter options retrieved successfully', filters);
+ProductController.getFilterOptions = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
+    const filters = await productService_js_1.ProductService.getAvailableFilters();
+    return responseHelper_js_1.ResponseHelper.success(res, 'Filter options retrieved successfully', filters);
 });
 /**
  * 🔥 NEW: Get top selling products
  */
-ProductController.getTopSelling = catchAsync(async (req, res, next) => {
+ProductController.getTopSelling = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const products = await ProductService.getTopSellingProducts(limit);
-    return ResponseHelper.success(res, 'Top selling products retrieved successfully', { products });
+    const products = await productService_js_1.ProductService.getTopSellingProducts(limit);
+    return responseHelper_js_1.ResponseHelper.success(res, 'Top selling products retrieved successfully', { products });
 });
 /**
  * 🔥 NEW: Get products by gender
  */
-ProductController.getProductsByGender = catchAsync(async (req, res, next) => {
+ProductController.getProductsByGender = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     const gender = req.params.gender;
     // التحقق من صحة قيمة الجنس
     const validGenders = ['men', 'women', 'unisex', 'boys', 'girls'];
     if (!validGenders.includes(gender)) {
-        throw new ValidationError(`Invalid gender. Valid values are: ${validGenders.join(', ')}`);
+        throw new errorTypes_js_2.ValidationError(`Invalid gender. Valid values are: ${validGenders.join(', ')}`);
     }
-    const products = await ProductService.getProductsByGender(gender);
-    return ResponseHelper.success(res, `Products for ${gender} retrieved successfully`, { products });
+    const products = await productService_js_1.ProductService.getProductsByGender(gender);
+    return responseHelper_js_1.ResponseHelper.success(res, `Products for ${gender} retrieved successfully`, { products });
 });
 /**
  * 🔥 NEW: Get products by season
  */
-ProductController.getProductsBySeason = catchAsync(async (req, res, next) => {
+ProductController.getProductsBySeason = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     const season = req.params.season;
     // التحقق من صحة قيمة الموسم
     const validSeasons = ['spring', 'summer', 'autumn', 'winter', 'all'];
     if (!validSeasons.includes(season)) {
-        throw new ValidationError(`Invalid season. Valid values are: ${validSeasons.join(', ')}`);
+        throw new errorTypes_js_2.ValidationError(`Invalid season. Valid values are: ${validSeasons.join(', ')}`);
     }
-    const products = await ProductService.getProductsBySeason(season);
-    return ResponseHelper.success(res, `Products for ${season} season retrieved successfully`, { products });
+    const products = await productService_js_1.ProductService.getProductsBySeason(season);
+    return responseHelper_js_1.ResponseHelper.success(res, `Products for ${season} season retrieved successfully`, { products });
 });
 /**
  * 🔥 NEW: Get products by brand
  */
-ProductController.getProductsByBrand = catchAsync(async (req, res, next) => {
+ProductController.getProductsByBrand = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     const brand = req.params.brand;
     if (!brand || brand.trim() === '') {
-        throw new ValidationError('Brand name is required');
+        throw new errorTypes_js_2.ValidationError('Brand name is required');
     }
-    const products = await ProductService.getProductsByBrand(brand);
-    return ResponseHelper.success(res, `Products for brand ${brand} retrieved successfully`, { products });
+    const products = await productService_js_1.ProductService.getProductsByBrand(brand);
+    return responseHelper_js_1.ResponseHelper.success(res, `Products for brand ${brand} retrieved successfully`, { products });
 });
 /**
  * Update product (admin only)
  */
-ProductController.updateProduct = catchAsync(async (req, res, next) => {
+ProductController.updateProduct = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     const productId = parseInt(req.params.id);
     // ⭐ UPDATED: الحصول على الملفات المرفوعة
     const uploadedFiles = req.files;
     // ⭐ UPDATED: بناء مصفوفة من روابط الصور إذا كانت هناك ملفات مرفوعة
     let imageUrls = [];
     if (uploadedFiles && uploadedFiles.length > 0) {
-        imageUrls = getImageUrls(uploadedFiles);
+        imageUrls = (0, multer_js_1.getImageUrls)(uploadedFiles);
     }
     // ⭐ Convert types if data is from form-data
     const updateData = { ...req.body };
@@ -269,20 +273,20 @@ ProductController.updateProduct = catchAsync(async (req, res, next) => {
         updateData.season = String(updateData.season);
     if (updateData.material !== undefined)
         updateData.material = String(updateData.material);
-    const updatedProduct = await ProductService.updateProduct(productId, updateData);
-    return ResponseHelper.success(res, 'Product updated successfully', updatedProduct);
+    const updatedProduct = await productService_js_1.ProductService.updateProduct(productId, updateData);
+    return responseHelper_js_1.ResponseHelper.success(res, 'Product updated successfully', updatedProduct);
 });
 /**
  * Update product images (admin only) - with multiple image upload support
  */
-ProductController.updateProductImages = catchAsync(async (req, res, next) => {
+ProductController.updateProductImages = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     const productId = parseInt(req.params.id);
     // ⭐ UPDATED: الحصول على الملفات المرفوعة (مصفوفة)
     const uploadedFiles = req.files;
     let image_urls = [];
     if (uploadedFiles && uploadedFiles.length > 0) {
         // ⭐ UPDATED: استخدام دالة المساعدة للحصول على روابط الصور
-        image_urls = getImageUrls(uploadedFiles);
+        image_urls = (0, multer_js_1.getImageUrls)(uploadedFiles);
     }
     else if (req.body.image_urls) {
         // معالجة image_urls من الجسم إذا كانت موجودة
@@ -291,56 +295,56 @@ ProductController.updateProductImages = catchAsync(async (req, res, next) => {
             : req.body.image_urls ? [req.body.image_urls] : [];
     }
     if (image_urls.length === 0) {
-        throw new ValidationError('Either upload images or provide image_urls');
+        throw new errorTypes_js_2.ValidationError('Either upload images or provide image_urls');
     }
-    const updatedProduct = await ProductService.updateProductImages(productId, image_urls);
-    return ResponseHelper.success(res, 'Product images updated successfully', updatedProduct);
+    const updatedProduct = await productService_js_1.ProductService.updateProductImages(productId, image_urls);
+    return responseHelper_js_1.ResponseHelper.success(res, 'Product images updated successfully', updatedProduct);
 });
 /**
  * Delete product (admin only)
  */
-ProductController.deleteProduct = catchAsync(async (req, res, next) => {
+ProductController.deleteProduct = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     const productId = parseInt(req.params.id);
-    const result = await ProductService.deleteProduct(productId);
-    return ResponseHelper.success(res, result.message);
+    const result = await productService_js_1.ProductService.deleteProduct(productId);
+    return responseHelper_js_1.ResponseHelper.success(res, result.message);
 });
 /**
  * Get products by category
  */
-ProductController.getProductsByCategory = catchAsync(async (req, res, next) => {
+ProductController.getProductsByCategory = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     const categoryId = parseInt(req.params.categoryId);
-    const products = await ProductService.getProductsByCategory(categoryId);
-    return ResponseHelper.success(res, 'Products retrieved successfully', products);
+    const products = await productService_js_1.ProductService.getProductsByCategory(categoryId);
+    return responseHelper_js_1.ResponseHelper.success(res, 'Products retrieved successfully', products);
 });
 /**
  * Update product stock (admin only)
  */
-ProductController.updateProductStock = catchAsync(async (req, res, next) => {
+ProductController.updateProductStock = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     const productId = parseInt(req.params.id);
     const stock = parseInt(req.body.stock);
     if (isNaN(stock)) {
-        throw new ValidationError('Valid stock quantity is required');
+        throw new errorTypes_js_2.ValidationError('Valid stock quantity is required');
     }
-    const updatedProduct = await ProductService.updateProductStock(productId, stock);
-    return ResponseHelper.success(res, 'Product stock updated successfully', updatedProduct);
+    const updatedProduct = await productService_js_1.ProductService.updateProductStock(productId, stock);
+    return responseHelper_js_1.ResponseHelper.success(res, 'Product stock updated successfully', updatedProduct);
 });
 /**
  * 🔥 NEW: Update product sales count
  */
-ProductController.updateSalesCount = catchAsync(async (req, res, next) => {
+ProductController.updateSalesCount = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
     const productId = parseInt(req.params.id);
     const quantity = parseInt(req.body.quantity);
     if (isNaN(quantity) || quantity <= 0) {
-        throw new ValidationError('Valid positive quantity is required');
+        throw new errorTypes_js_2.ValidationError('Valid positive quantity is required');
     }
-    await ProductService.updateSalesCount(productId, quantity);
-    return ResponseHelper.success(res, 'Sales count updated successfully');
+    await productService_js_1.ProductService.updateSalesCount(productId, quantity);
+    return responseHelper_js_1.ResponseHelper.success(res, 'Sales count updated successfully');
 });
 /**
  * Get product statistics (admin only)
  */
-ProductController.getProductStats = catchAsync(async (req, res, next) => {
-    const stats = await ProductService.getProductStats();
-    return ResponseHelper.success(res, 'Product stats retrieved successfully', stats);
+ProductController.getProductStats = (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
+    const stats = await productService_js_1.ProductService.getProductStats();
+    return responseHelper_js_1.ResponseHelper.success(res, 'Product stats retrieved successfully', stats);
 });
-export default ProductController;
+exports.default = ProductController;

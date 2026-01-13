@@ -1,7 +1,13 @@
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { ValidationError } from '../ errors/errorTypes.js';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.staticFilesConfig = exports.deleteImages = exports.deleteImageByUrl = exports.deleteFile = exports.validateImageUpload = exports.uploadProductImage = exports.getImageUrl = exports.getImageUrls = exports.validateProductImages = exports.uploadProductImages = void 0;
+const multer_1 = __importDefault(require("multer"));
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const errorTypes_js_1 = require("../ errors/errorTypes.js");
 // 1. إنشاء مجلدات التحميل إذا لم تكن موجودة
 const createUploadsFolders = () => {
     const folders = [
@@ -11,8 +17,8 @@ const createUploadsFolders = () => {
         'public/categories'
     ];
     folders.forEach(folder => {
-        if (!fs.existsSync(folder)) {
-            fs.mkdirSync(folder, { recursive: true });
+        if (!fs_1.default.existsSync(folder)) {
+            fs_1.default.mkdirSync(folder, { recursive: true });
             console.log(`✅ Created folder: ${folder}`);
         }
     });
@@ -34,7 +40,7 @@ const fileFilter = (req, file, cb) => {
             cb(null, true);
         }
         else {
-            cb(new ValidationError(`نوع الملف غير مسموح. المسموح: ${Object.keys(allowedMimeTypes).join(', ')}`));
+            cb(new errorTypes_js_1.ValidationError(`نوع الملف غير مسموح. المسموح: ${Object.keys(allowedMimeTypes).join(', ')}`));
         }
     }
     catch (error) {
@@ -42,13 +48,13 @@ const fileFilter = (req, file, cb) => {
     }
 };
 // 4. إعداد التخزين للمنتجات
-const productStorage = multer.diskStorage({
+const productStorage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'public/products/');
     },
     filename: (req, file, cb) => {
         try {
-            const fileExt = path.extname(file.originalname);
+            const fileExt = path_1.default.extname(file.originalname);
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
             const finalName = `product-${uniqueSuffix}${fileExt}`;
             cb(null, finalName);
@@ -63,7 +69,7 @@ const productStorage = multer.diskStorage({
 // ⭐ الحل الجديد: Multer متعدد الصور ⭐
 // ============================================
 // 5. ⭐ MIDDLEWARE لرفع حتى 3 صور (للصور المتعددة)
-export const uploadProductImages = multer({
+exports.uploadProductImages = (0, multer_1.default)({
     storage: productStorage,
     fileFilter,
     limits: {
@@ -71,13 +77,13 @@ export const uploadProductImages = multer({
     }
 }).array('images', 3); // ⭐ 'images' (جمع) - حتى 3 ملفات
 // 6. ⭐ MIDDLEWARE للتحقق من الصور المتعددة
-export const validateProductImages = (req, res, next) => {
+const validateProductImages = (req, res, next) => {
     if (!req.files || req.files.length === 0) {
-        throw new ValidationError('يجب رفع صورة واحدة على الأقل للمنتج');
+        throw new errorTypes_js_1.ValidationError('يجب رفع صورة واحدة على الأقل للمنتج');
     }
     const files = req.files;
     if (files.length > 3) {
-        throw new ValidationError('لا يمكن رفع أكثر من 3 صور للمنتج الواحد');
+        throw new errorTypes_js_1.ValidationError('لا يمكن رفع أكثر من 3 صور للمنتج الواحد');
     }
     // تحديث هنا لاستخدام /public/products/
     files.forEach((file) => {
@@ -85,19 +91,22 @@ export const validateProductImages = (req, res, next) => {
     });
     next();
 };
+exports.validateProductImages = validateProductImages;
 // 7. ⭐ دالة للحصول على روابط متعددة للصور
-export const getImageUrls = (files) => {
+const getImageUrls = (files) => {
     if (!files || files.length === 0)
         return [];
     return files.map(file => file.publicUrl || `/public/products/${file.filename}` // ✅ تحديث هنا أيضًا
     );
 };
+exports.getImageUrls = getImageUrls;
 // 8. دالة للحصول على رابط صورة واحدة
-export const getImageUrl = (filename) => {
+const getImageUrl = (filename) => {
     return `/public/products/${filename}`; // ✅ إضافة /public/
 };
+exports.getImageUrl = getImageUrl;
 // 9. ⭐ للتوافق: MIDDLEWARE لصورة واحدة فقط (للرجعية)
-export const uploadProductImage = multer({
+exports.uploadProductImage = (0, multer_1.default)({
     storage: productStorage,
     fileFilter,
     limits: {
@@ -105,26 +114,27 @@ export const uploadProductImage = multer({
     }
 }).single('image'); // 'image' (مفرد) - للتوافق
 // 10. ⭐ للتوافق: التحقق من صورة واحدة
-export const validateImageUpload = (req, res, next) => {
+const validateImageUpload = (req, res, next) => {
     if (!req.file) {
-        throw new ValidationError('صورة المنتج مطلوبة');
+        throw new errorTypes_js_1.ValidationError('صورة المنتج مطلوبة');
     }
     if (req.file.filename) {
-        req.file.publicUrl = getImageUrl(req.file.filename);
+        req.file.publicUrl = (0, exports.getImageUrl)(req.file.filename);
     }
     next();
 };
+exports.validateImageUpload = validateImageUpload;
 // 11. دالة مساعدة لحذف الملفات
-export const deleteFile = (filePath) => {
+const deleteFile = (filePath) => {
     return new Promise((resolve) => {
         let fullPath = filePath;
         if (filePath.startsWith('/products/') || filePath.startsWith('products/')) {
-            fullPath = path.join('public', filePath);
+            fullPath = path_1.default.join('public', filePath);
         }
-        const absolutePath = path.isAbsolute(fullPath)
+        const absolutePath = path_1.default.isAbsolute(fullPath)
             ? fullPath
-            : path.join(process.cwd(), fullPath);
-        fs.unlink(absolutePath, (error) => {
+            : path_1.default.join(process.cwd(), fullPath);
+        fs_1.default.unlink(absolutePath, (error) => {
             if (error) {
                 console.error(`❌ Failed to delete file: ${absolutePath}`, error);
                 resolve(false);
@@ -136,32 +146,40 @@ export const deleteFile = (filePath) => {
         });
     });
 };
+exports.deleteFile = deleteFile;
 // 12. دالة مساعدة لحذف الصورة بناءً على الـ URL
-export const deleteImageByUrl = (imageUrl) => {
-    const filename = path.basename(imageUrl);
-    const filePath = path.join('public/products', filename);
-    return deleteFile(filePath);
+const deleteImageByUrl = (imageUrl) => {
+    const filename = path_1.default.basename(imageUrl);
+    const filePath = path_1.default.join('public/products', filename);
+    return (0, exports.deleteFile)(filePath);
 };
+exports.deleteImageByUrl = deleteImageByUrl;
 // 13. ⭐ دالة لحذف مجموعة من الصور
-export const deleteImages = (imageUrls) => {
-    const deletePromises = imageUrls.map(url => deleteImageByUrl(url));
+const deleteImages = (imageUrls) => {
+    const deletePromises = imageUrls.map(url => (0, exports.deleteImageByUrl)(url));
     return Promise.all(deletePromises);
 };
+exports.deleteImages = deleteImages;
 // 15. إعدادات الـ Express لتقديم الملفات الثابتة
-export const staticFilesConfig = {
+exports.staticFilesConfig = {
     publicPath: 'public',
     productsPath: 'public/products'
 };
-export default {
-    uploadProductImages, // ⭐ الرئيسي: لرفع 3 صور
-    validateProductImages, // ⭐ الرئيسي: للتحقق من 3 صور
-    uploadProductImage, // ⭐ للتوافق: لصورة واحدة
-    validateImageUpload, // ⭐ للتوافق: للتحقق من صورة واحدة
-    getImageUrl,
-    getImageUrls, // ⭐ للحصول على روابط متعددة
-    deleteFile,
-    deleteImageByUrl,
-    deleteImages, // ⭐ لحذف مجموعة صور
+exports.default = {
+    uploadProductImages: exports.uploadProductImages, // ⭐ الرئيسي: لرفع 3 صور
+    validateProductImages: // ⭐ الرئيسي: لرفع 3 صور
+    exports.validateProductImages, // ⭐ الرئيسي: للتحقق من 3 صور
+    uploadProductImage: // ⭐ الرئيسي: للتحقق من 3 صور
+    exports.uploadProductImage, // ⭐ للتوافق: لصورة واحدة
+    validateImageUpload: // ⭐ للتوافق: لصورة واحدة
+    exports.validateImageUpload, // ⭐ للتوافق: للتحقق من صورة واحدة
+    getImageUrl: // ⭐ للتوافق: للتحقق من صورة واحدة
+    exports.getImageUrl,
+    getImageUrls: exports.getImageUrls, // ⭐ للحصول على روابط متعددة
+    deleteFile: // ⭐ للحصول على روابط متعددة
+    exports.deleteFile,
+    deleteImageByUrl: exports.deleteImageByUrl,
+    deleteImages: exports.deleteImages, // ⭐ لحذف مجموعة صور
     allowedMimeTypes,
-    staticFilesConfig
+    staticFilesConfig: exports.staticFilesConfig
 };

@@ -1,5 +1,8 @@
-import { query } from '../config/database.js';
-export const runMigrations = async () => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.testConnection = exports.runMigrations = void 0;
+const database_js_1 = require("../config/database.js");
+const runMigrations = async () => {
     try {
         console.log('🔄 Applying database updates...');
         // SQL migrations directly (without external file)
@@ -20,7 +23,7 @@ export const runMigrations = async () => {
         // Run each migration
         for (const [index, sql] of migrations.entries()) {
             console.log(`📝 Applying update ${index + 1}/${migrations.length}...`);
-            await query(sql);
+            await (0, database_js_1.query)(sql);
         }
         console.log('✅ Database updated successfully!');
     }
@@ -29,5 +32,7 @@ export const runMigrations = async () => {
         throw error;
     }
 };
+exports.runMigrations = runMigrations;
 // Also export the testConnection function if it doesn't exist
-export { testConnection } from '../config/database.js';
+var database_js_2 = require("../config/database.js");
+Object.defineProperty(exports, "testConnection", { enumerable: true, get: function () { return database_js_2.testConnection; } });

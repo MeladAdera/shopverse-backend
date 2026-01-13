@@ -1,24 +1,28 @@
-import { AppError } from './AppError.js';
-import { env } from '../config/env.js';
-import { NotFoundError } from './errorTypes.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.catchAsync = exports.notFoundHandler = exports.errorHandler = void 0;
+const AppError_js_1 = require("./AppError.js");
+const env_js_1 = require("../config/env.js");
+const errorTypes_js_1 = require("./errorTypes.js");
 /**
  * Central error handling middleware for Express applications
  */
-export const errorHandler = (error, req, res, next) => {
+const errorHandler = (error, req, res, next) => {
     // Convert unknown errors to AppError
     let handledError;
-    if (error instanceof AppError) {
+    if (error instanceof AppError_js_1.AppError) {
         handledError = error;
     }
     else {
         // Unexpected error - convert to InternalServerError
-        handledError = new AppError(error.message || 'Something went wrong', 500, false);
+        handledError = new AppError_js_1.AppError(error.message || 'Something went wrong', 500, false);
     }
     // Log error with request details
     logError(handledError, req);
     // Send appropriate response based on environment
     sendErrorResponse(handledError, req, res);
 };
+exports.errorHandler = errorHandler;
 /**
  * Log error with request context details
  */
@@ -52,7 +56,7 @@ const logError = (error, req) => {
  */
 const sendErrorResponse = (error, req, res) => {
     // Development environment - detailed error information
-    if (env.NODE_ENV === 'development') {
+    if (env_js_1.env.NODE_ENV === 'development') {
         res.status(error.statusCode).json({
             success: false,
             error: error.message,
@@ -86,15 +90,17 @@ const sendErrorResponse = (error, req, res) => {
 /**
  * 404 handler for undefined routes
  */
-export const notFoundHandler = (req, res, next) => {
-    const error = new NotFoundError(`Route ${req.method} ${req.originalUrl} not found`);
+const notFoundHandler = (req, res, next) => {
+    const error = new errorTypes_js_1.NotFoundError(`Route ${req.method} ${req.originalUrl} not found`);
     next(error);
 };
+exports.notFoundHandler = notFoundHandler;
 /**
  * Wrapper to catch async errors in route handlers
  */
-export const catchAsync = (fn) => {
+const catchAsync = (fn) => {
     return (req, res, next) => {
         Promise.resolve(fn(req, res, next)).catch(next);
     };
 };
+exports.catchAsync = catchAsync;

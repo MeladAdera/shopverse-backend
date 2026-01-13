@@ -1,12 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.userRepository = void 0;
 // 📁 src/repositories/userRepository.ts
-import { query } from '../config/database.js';
-export const userRepository = {
+const database_js_1 = require("../config/database.js");
+exports.userRepository = {
     /**
      * Create a new user
      */
     async create(userData) {
         const { name, email, password_hash, role = 'user' } = userData;
-        const result = await query(`INSERT INTO users (name, email, password_hash, role) 
+        const result = await (0, database_js_1.query)(`INSERT INTO users (name, email, password_hash, role) 
        VALUES ($1, $2, $3, $4) 
        RETURNING id, name, email, role, created_at`, [name, email, password_hash, role]);
         return result.rows[0];
@@ -15,35 +18,35 @@ export const userRepository = {
      * Find user by email (للاستخدام الداخلي - يعيد active)
      */
     async findByEmail(email) {
-        const result = await query('SELECT id, name, email, password_hash, role, active, created_at FROM users WHERE email = $1', [email]);
+        const result = await (0, database_js_1.query)('SELECT id, name, email, password_hash, role, active, created_at FROM users WHERE email = $1', [email]);
         return result.rows[0] || null;
     },
     /**
      * Find user by ID - بدون active للمستخدم العادي
      */
     async findById(id) {
-        const result = await query('SELECT id, name, email, role, created_at FROM users WHERE id = $1', [id]);
+        const result = await (0, database_js_1.query)('SELECT id, name, email, role, created_at FROM users WHERE id = $1', [id]);
         return result.rows[0] || null;
     },
     /**
      * Find user by ID with password (للاستخدام الداخلي)
      */
     async findByIdWithPassword(id) {
-        const result = await query('SELECT id, name, email, password_hash, role, active, created_at FROM users WHERE id = $1', [id]);
+        const result = await (0, database_js_1.query)('SELECT id, name, email, password_hash, role, active, created_at FROM users WHERE id = $1', [id]);
         return result.rows[0] || null;
     },
     /**
      * Check if email exists
      */
     async emailExists(email) {
-        const result = await query('SELECT 1 FROM users WHERE email = $1', [email]);
+        const result = await (0, database_js_1.query)('SELECT 1 FROM users WHERE email = $1', [email]);
         return result.rows.length > 0;
     },
     /**
      * Get all users (للمستخدم العادي - بدون active)
      */
     async findAll() {
-        const result = await query('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC');
+        const result = await (0, database_js_1.query)('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC');
         return result.rows;
     },
     /**
@@ -78,7 +81,7 @@ export const userRepository = {
         }
         values.push(userId);
         // 🆕 إزالة updated_at من الاستعلام
-        const result = await query(`UPDATE users SET ${fields.join(', ')} 
+        const result = await (0, database_js_1.query)(`UPDATE users SET ${fields.join(', ')} 
        WHERE id = $${paramCount} 
        RETURNING id, name, email, role, created_at`, values);
         if (result.rows.length === 0) {
@@ -90,14 +93,14 @@ export const userRepository = {
      * Delete user
      */
     async delete(userId) {
-        const result = await query('DELETE FROM users WHERE id = $1', [userId]);
+        const result = await (0, database_js_1.query)('DELETE FROM users WHERE id = $1', [userId]);
         return (result.rowCount || 0) > 0;
     },
     /**
      * Update password
      */
     async updatePassword(userId, newPasswordHash) {
-        const result = await query('UPDATE users SET password_hash = $1 WHERE id = $2', [newPasswordHash, userId]);
+        const result = await (0, database_js_1.query)('UPDATE users SET password_hash = $1 WHERE id = $2', [newPasswordHash, userId]);
         if ((result.rowCount || 0) === 0) {
             throw new Error('User not found');
         }
@@ -107,7 +110,7 @@ export const userRepository = {
     * يستخدم في middleware للتحقق من حالة المستخدم فقط
     */
     async getUserStatus(userId) {
-        const result = await query('SELECT active FROM users WHERE id = $1', [userId]);
+        const result = await (0, database_js_1.query)('SELECT active FROM users WHERE id = $1', [userId]);
         return result.rows[0] || null;
     },
     /**
@@ -115,14 +118,14 @@ export const userRepository = {
      * لا تشمل password_hash، تشمل name
      */
     async findForToken(userId) {
-        const result = await query('SELECT id, name, email, role, active FROM users WHERE id = $1', [userId]);
+        const result = await (0, database_js_1.query)('SELECT id, name, email, role, active FROM users WHERE id = $1', [userId]);
         return result.rows[0] || null;
     },
     /**
      * 🆕 تحديث حالة المستخدم (active) - للإدارة
      */
     async updateStatus(userId, active) {
-        const result = await query('UPDATE users SET active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [active, userId]);
+        const result = await (0, database_js_1.query)('UPDATE users SET active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [active, userId]);
         if ((result.rowCount || 0) === 0) {
             throw new Error('User not found');
         }

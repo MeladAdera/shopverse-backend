@@ -1,5 +1,8 @@
-import { pool } from '../config/database.js';
-export class ProductRepository {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProductRepository = void 0;
+const database_js_1 = require("../config/database.js");
+class ProductRepository {
     /**
      * Create a new product
      */
@@ -19,7 +22,7 @@ export class ProductRepository {
             brand || 'Generic', gender || 'unisex', season || 'all',
             material || 'cotton'
         ];
-        const result = await pool.query(query, values);
+        const result = await database_js_1.pool.query(query, values);
         return result.rows[0];
     }
     /**
@@ -188,7 +191,7 @@ export class ProductRepository {
         }
         console.log('Product Query:', query); // For debugging
         console.log('Query Values:', values); // For debugging
-        const result = await pool.query(query, values);
+        const result = await database_js_1.pool.query(query, values);
         return result.rows;
     }
     /**
@@ -207,7 +210,7 @@ export class ProductRepository {
       WHERE p.id = $1 AND p.active = true
       GROUP BY p.id, c.name
     `;
-        const result = await pool.query(query, [id]);
+        const result = await database_js_1.pool.query(query, [id]);
         return result.rows[0] || null;
     }
     /**
@@ -252,7 +255,7 @@ export class ProductRepository {
       WHERE id = $${paramCount} AND active = true
       RETURNING *
     `;
-        const result = await pool.query(query, values);
+        const result = await database_js_1.pool.query(query, values);
         return result.rows[0] || null;
     }
     /**
@@ -273,7 +276,7 @@ export class ProductRepository {
       FROM products
       WHERE active = true
     `;
-        const result = await pool.query(query);
+        const result = await database_js_1.pool.query(query);
         return result.rows[0];
     }
     /**
@@ -358,8 +361,8 @@ export class ProductRepository {
         }
         // Execute queries
         const [productsResult, countResult] = await Promise.all([
-            pool.query(query, values),
-            pool.query(countQuery, countValues)
+            database_js_1.pool.query(query, values),
+            database_js_1.pool.query(countQuery, countValues)
         ]);
         return {
             products: productsResult.rows,
@@ -370,7 +373,7 @@ export class ProductRepository {
      * 🔥 NEW: Update sales count for a product
      */
     static async updateSalesCount(productId, quantity) {
-        await pool.query(`UPDATE products 
+        await database_js_1.pool.query(`UPDATE products 
        SET sales_count = sales_count + $1, updated_at = CURRENT_TIMESTAMP
        WHERE id = $2`, [quantity, productId]);
     }
@@ -383,21 +386,21 @@ export class ProductRepository {
       SET active = false, updated_at = CURRENT_TIMESTAMP
       WHERE id = $1 AND active = true
     `;
-        const result = await pool.query(query, [id]);
+        const result = await database_js_1.pool.query(query, [id]);
         return (result.rowCount || 0) > 0;
     }
     /**
      * Hard delete
      */
     static async delete(id) {
-        const result = await pool.query('DELETE FROM products WHERE id = $1', [id]);
+        const result = await database_js_1.pool.query('DELETE FROM products WHERE id = $1', [id]);
         return (result.rowCount || 0) > 0;
     }
     /**
      * Check if product exists
      */
     static async exists(id) {
-        const result = await pool.query('SELECT 1 FROM products WHERE id = $1 AND active = true', [id]);
+        const result = await database_js_1.pool.query('SELECT 1 FROM products WHERE id = $1 AND active = true', [id]);
         return result.rows.length > 0;
     }
     /**
@@ -410,7 +413,7 @@ export class ProductRepository {
             query += ` AND id != $2`;
             values.push(excludeId);
         }
-        const result = await pool.query(query, values);
+        const result = await database_js_1.pool.query(query, values);
         return result.rows.length > 0;
     }
     /**
@@ -423,7 +426,7 @@ export class ProductRepository {
       WHERE id = $2 AND active = true
       RETURNING *
     `;
-        const result = await pool.query(query, [newStock, id]);
+        const result = await database_js_1.pool.query(query, [newStock, id]);
         return result.rows[0] || null;
     }
     /**
@@ -443,14 +446,14 @@ export class ProductRepository {
       GROUP BY p.id, c.name
       ORDER BY p.created_at DESC
     `;
-        const result = await pool.query(query, [categoryId]);
+        const result = await database_js_1.pool.query(query, [categoryId]);
         return result.rows;
     }
     /**
      * Update images only
      */
     static async updateImages(id, image_urls) {
-        const result = await pool.query(`UPDATE products SET image_urls = $1, updated_at = CURRENT_TIMESTAMP 
+        const result = await database_js_1.pool.query(`UPDATE products SET image_urls = $1, updated_at = CURRENT_TIMESTAMP 
        WHERE id = $2 AND active = true
        RETURNING *`, [image_urls, id]);
         return result.rows[0] || null;
@@ -460,10 +463,10 @@ export class ProductRepository {
      */
     static async getStats() {
         const [totalResult, outOfStockResult, categoriesResult, brandsResult, genderResult] = await Promise.all([
-            pool.query('SELECT COUNT(*) as count FROM products WHERE active = true'),
-            pool.query('SELECT COUNT(*) as count FROM products WHERE stock = 0 AND active = true'),
-            pool.query('SELECT COUNT(DISTINCT category_id) as count FROM products WHERE active = true'),
-            pool.query(`
+            database_js_1.pool.query('SELECT COUNT(*) as count FROM products WHERE active = true'),
+            database_js_1.pool.query('SELECT COUNT(*) as count FROM products WHERE stock = 0 AND active = true'),
+            database_js_1.pool.query('SELECT COUNT(DISTINCT category_id) as count FROM products WHERE active = true'),
+            database_js_1.pool.query(`
         SELECT brand, COUNT(*) as count 
         FROM products 
         WHERE brand IS NOT NULL AND active = true 
@@ -471,7 +474,7 @@ export class ProductRepository {
         ORDER BY count DESC 
         LIMIT 5
       `),
-            pool.query(`
+            database_js_1.pool.query(`
         SELECT gender, COUNT(*) as count 
         FROM products 
         WHERE gender IS NOT NULL AND active = true 
@@ -488,3 +491,4 @@ export class ProductRepository {
         };
     }
 }
+exports.ProductRepository = ProductRepository;

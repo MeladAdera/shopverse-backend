@@ -1,9 +1,12 @@
-import { reviewService } from '../services/reviewService.js';
-import { ResponseHelper } from '../utils/responseHelper.js';
-import { catchAsync, ValidationError, } from '../ errors/errorTypes.js';
-export const reviewController = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.reviewController = void 0;
+const reviewService_js_1 = require("../services/reviewService.js");
+const responseHelper_js_1 = require("../utils/responseHelper.js");
+const errorTypes_js_1 = require("../ errors/errorTypes.js");
+exports.reviewController = {
     // 1️⃣ Create new review - using catchAsync
-    createReview: catchAsync(async (req, res, next) => {
+    createReview: (0, errorTypes_js_1.catchAsync)(async (req, res, next) => {
         // 🔥 GET product_id from URL params (الصحيح)
         const { productId } = req.params;
         const { rating, comment } = req.body;
@@ -17,7 +20,7 @@ export const reviewController = {
         });
         // Validate required data
         if (!productId || !rating || !user_id) {
-            throw new ValidationError('Review data is incomplete', {
+            throw new errorTypes_js_1.ValidationError('Review data is incomplete', {
                 missing_fields: {
                     product_id: !productId,
                     rating: !rating,
@@ -28,54 +31,54 @@ export const reviewController = {
         // Convert productId to number
         const product_id = parseInt(productId);
         if (isNaN(product_id)) {
-            throw new ValidationError('Invalid product ID', {
+            throw new errorTypes_js_1.ValidationError('Invalid product ID', {
                 product_id: productId
             });
         }
-        const result = await reviewService.createReview({
+        const result = await reviewService_js_1.reviewService.createReview({
             user_id,
             product_id,
             rating: Number(rating),
             comment: comment || ''
         });
-        ResponseHelper.success(res, result.message, result.data, 201);
+        responseHelper_js_1.ResponseHelper.success(res, result.message, result.data, 201);
     }),
     // 2️⃣ Get reviews for a specific product - using catchAsync
-    getProductReviews: catchAsync(async (req, res) => {
+    getProductReviews: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const productId = parseInt(req.params.productId);
         if (!productId) {
-            throw new ValidationError('Product ID is required');
+            throw new errorTypes_js_1.ValidationError('Product ID is required');
         }
-        const reviews = await reviewService.getProductReviews(productId);
-        ResponseHelper.success(res, 'Reviews retrieved successfully', reviews);
+        const reviews = await reviewService_js_1.reviewService.getProductReviews(productId);
+        responseHelper_js_1.ResponseHelper.success(res, 'Reviews retrieved successfully', reviews);
     }),
     // 3️⃣ Get review statistics for a product - using catchAsync
-    getProductReviewsSummary: catchAsync(async (req, res) => {
+    getProductReviewsSummary: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const productId = parseInt(req.params.productId);
         if (!productId) {
-            throw new ValidationError('Product ID is required');
+            throw new errorTypes_js_1.ValidationError('Product ID is required');
         }
-        const summary = await reviewService.getProductReviewsSummary(productId);
-        ResponseHelper.success(res, 'Review statistics retrieved successfully', summary);
+        const summary = await reviewService_js_1.reviewService.getProductReviewsSummary(productId);
+        responseHelper_js_1.ResponseHelper.success(res, 'Review statistics retrieved successfully', summary);
     }),
     // 4️⃣ Delete review - using catchAsync
-    deleteReview: catchAsync(async (req, res) => {
+    deleteReview: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const reviewId = parseInt(req.params.reviewId);
         const user_id = req.user?.id;
         if (!reviewId || !user_id) {
-            throw new ValidationError('Incomplete data');
+            throw new errorTypes_js_1.ValidationError('Incomplete data');
         }
-        const result = await reviewService.deleteReview(reviewId, user_id);
-        ResponseHelper.success(res, result.message);
+        const result = await reviewService_js_1.reviewService.deleteReview(reviewId, user_id);
+        responseHelper_js_1.ResponseHelper.success(res, result.message);
     }),
     // 5️⃣ Check if user can review - using catchAsync
-    checkCanReview: catchAsync(async (req, res) => {
+    checkCanReview: (0, errorTypes_js_1.catchAsync)(async (req, res) => {
         const productId = parseInt(req.params.productId);
         const user_id = req.user?.id; // ⭐ Fixed from email to id
         if (!productId || !user_id) {
-            throw new ValidationError('Incomplete data');
+            throw new errorTypes_js_1.ValidationError('Incomplete data');
         }
-        const result = await reviewService.canUserReview(productId, user_id);
-        ResponseHelper.success(res, 'Verification successful', result);
+        const result = await reviewService_js_1.reviewService.canUserReview(productId, user_id);
+        responseHelper_js_1.ResponseHelper.success(res, 'Verification successful', result);
     })
 };

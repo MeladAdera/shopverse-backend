@@ -1,6 +1,9 @@
-import { Pool } from 'pg';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.query = exports.testConnection = exports.pool = void 0;
+const pg_1 = require("pg");
 // إنشاء connection pool
-export const pool = new Pool({
+exports.pool = new pg_1.Pool({
     host: 'localhost',
     port: 5432,
     database: 'shopverse',
@@ -8,9 +11,9 @@ export const pool = new Pool({
     password: 'admin123', // كلمة المرور الخاصة بك
 });
 // اختبار الاتصال
-export const testConnection = async () => {
+const testConnection = async () => {
     try {
-        const client = await pool.connect();
+        const client = await exports.pool.connect();
         console.log('✅ Connected to PostgreSQL database');
         client.release();
         return true;
@@ -20,7 +23,9 @@ export const testConnection = async () => {
         return false;
     }
 };
+exports.testConnection = testConnection;
 // دالة مساعدة للاستعلامات
-export const query = (text, params) => {
-    return pool.query(text, params);
+const query = (text, params) => {
+    return exports.pool.query(text, params);
 };
+exports.query = query;
