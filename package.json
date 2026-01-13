@@ -4,6 +4,8 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
+        "predeploy": "tsc --noEmit --strict",
+
     "start": "node dist/server.js"
   },
   "dependencies": {
