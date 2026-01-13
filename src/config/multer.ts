@@ -1,8 +1,9 @@
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+
 import { Request, Response, NextFunction } from 'express';
 import { ValidationError } from '../ errors/errorTypes.js';
+const path = require('path');
+const fs = require('fs');
 
 
 // 1. إنشاء مجلدات التحميل إذا لم تكن موجودة
