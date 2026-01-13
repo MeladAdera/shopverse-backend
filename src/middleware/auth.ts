@@ -11,6 +11,12 @@ export interface AuthenticatedRequest extends Request {
     role: string;
     name?: string;
   };
+  // أضف هذه الخصائص المفقودة
+  body: any;
+  params: any;
+  query: any;
+  files?: any;
+  headers: any;
 }
 
 /**
@@ -37,7 +43,6 @@ export const authenticate = async (req: AuthenticatedRequest, res: Response, nex
     const decoded = verifyAccessToken(token);
     
     // 🆕 4. التحقق من حالة المستخدم فقط (active) - باستخدام الدالة الجديدة
-    // هذا أسرع لأننا نطلب حقل واحد فقط من قاعدة البيانات
     const userStatus = await userRepository.getUserStatus(decoded.userId);
     
     if (!userStatus) {

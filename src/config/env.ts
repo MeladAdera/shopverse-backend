@@ -1,5 +1,7 @@
 // src/config/env.ts - نسخة أكثر مرونة
 import { z } from 'zod';
+import * as process from 'process';
+
 
 const envSchema = z.object({
   // Server

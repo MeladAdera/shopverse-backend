@@ -23,7 +23,6 @@ const authenticate = async (req, res, next) => {
         // 3. التحقق من صحة التوكن وفك التشفير
         const decoded = (0, jwt_js_1.verifyAccessToken)(token);
         // 🆕 4. التحقق من حالة المستخدم فقط (active) - باستخدام الدالة الجديدة
-        // هذا أسرع لأننا نطلب حقل واحد فقط من قاعدة البيانات
         const userStatus = await userRepository_js_1.userRepository.getUserStatus(decoded.userId);
         if (!userStatus) {
             throw new errorTypes_js_1.AuthenticationError('User not found or account deleted');
