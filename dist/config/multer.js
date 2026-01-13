@@ -1,4 +1,5 @@
 "use strict";
+/// <reference types="node" />
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -39,8 +40,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.staticFilesConfig = exports.deleteImages = exports.deleteImageByUrl = exports.deleteFile = exports.validateImageUpload = exports.uploadProductImage = exports.getImageUrl = exports.getImageUrls = exports.validateProductImages = exports.uploadProductImages = void 0;
 const multer_1 = __importDefault(require("multer"));
 const errorTypes_js_1 = require("../ errors/errorTypes.js");
-const fs = __importStar(require("fs"));
+// الآن الـ imports رح تشتغل
 const path = __importStar(require("path"));
+const fs = __importStar(require("fs"));
+;
 // 1. إنشاء مجلدات التحميل إذا لم تكن موجودة
 const createUploadsFolders = () => {
     const folders = [

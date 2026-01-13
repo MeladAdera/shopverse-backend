@@ -1,9 +1,12 @@
-import multer from 'multer';
+/// <reference types="node" />
 
+import multer from 'multer';
 import { Request, Response, NextFunction } from 'express';
 import { ValidationError } from '../ errors/errorTypes.js';
-import * as fs from 'fs';
+
+// الآن الـ imports رح تشتغل
 import * as path from 'path';
+import * as fs from 'fs';;
 
 
 // 1. إنشاء مجلدات التحميل إذا لم تكن موجودة
