@@ -1,4 +1,13 @@
+// src/config/database.ts
 import { Pool } from 'pg';
+
+// تعريف process (لأنه global في Node.js)
+declare const process: {
+  env: {
+    DATABASE_URL?: string;
+    NODE_ENV?: string;
+  };
+};
 
 // ⭐ استخدم DATABASE_URL من Environment Variables
 const connectionString = process.env.DATABASE_URL;
@@ -11,7 +20,7 @@ if (!connectionString) {
 export const pool = new Pool({
   connectionString: connectionString,
   ssl: process.env.NODE_ENV === 'production' ? { 
-    rejectUnauthorized: false  // ⭐ مهم لـ Render PostgreSQL
+    rejectUnauthorized: false
   } : false
 });
 
