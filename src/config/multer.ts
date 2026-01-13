@@ -17,7 +17,6 @@ interface MulterFile {
   destination: string;
   filename: string;
   path: string;
-  buffer: any;
 }
 
 // 1. إنشاء مجلدات التحميل إذا لم تكن موجودة
