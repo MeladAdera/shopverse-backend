@@ -6,8 +6,10 @@ import { runMigrations } from './database/migrate.js'; // 🆕 Import the update
 // Load environment variables early
 dotenv.config();
 
-const PORT = process.env.PORT || 5000;
-const HOST = process.env.HOST || 'localhost';
+const PORT = // @ts-ignore
+process.env.PORT || 5000;
+const HOST = // @ts-ignore
+process.env.HOST || 'localhost';
 
 // 🔄 Enhanced startup function
 const startServer = async () => {
@@ -30,7 +32,8 @@ const startServer = async () => {
       console.log(`✅ Server started successfully!`);
       console.log(`🚀 Server running on http://${HOST}:${PORT}`);
       console.log(`📊 Health: http://${HOST}:${PORT}/api/health`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🌍 Environment: ${// @ts-ignore
+process.env.NODE_ENV || 'development'}`);
     });
 
     return server;

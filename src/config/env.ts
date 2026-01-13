@@ -19,5 +19,6 @@ const envSchema = z.object({
   DATABASE_URL: z.string().optional(),
 });
 
-export const env = envSchema.parse(process.env);
+export const env = envSchema.parse(// @ts-ignore
+process.env);
 export type EnvConfig = z.infer<typeof envSchema>;

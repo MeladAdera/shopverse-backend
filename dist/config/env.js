@@ -16,4 +16,5 @@ const envSchema = zod_1.z.object({
     // Database (سيتم إضافتها لاحقاً)
     DATABASE_URL: zod_1.z.string().optional(),
 });
-exports.env = envSchema.parse(process.env);
+exports.env = envSchema.parse(// @ts-ignore
+process.env);

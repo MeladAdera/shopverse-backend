@@ -1,4 +1,4 @@
-import { Request } from "express";
+import { Request } from 'express';
 
 declare global {
   namespace Express {
@@ -9,13 +9,15 @@ declare global {
         role: string;
         name?: string;
       };
-      files?: {
-        [fieldname: string]: Express.Multer.File[];
-      } | Express.Multer.File[];
     }
   }
 }
 
-
-
-export {};
+export interface AuthenticatedRequest extends Request {
+  user: {
+    id: number;
+    email: string;
+    role: string;
+    name?: string;
+  };
+}
