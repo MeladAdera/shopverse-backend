@@ -2,7 +2,7 @@
 import { Router } from 'express';
 import { adminController } from '../controllers/adminController.js';
 import { authenticate } from '../middleware/auth.js';
-import { adminGuard } from '../middleware/admin'; // 🆕 سننشئ هذا
+import { adminGuard } from '../middleware/admin.js'; // 🆕 سننشئ هذا
 
 const router = Router();
 

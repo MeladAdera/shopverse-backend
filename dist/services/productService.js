@@ -4,12 +4,6 @@ import { ValidationError, NotFoundError, ConflictError } from '../ errors/errorT
  * خدمة المنتجات - تحتوي على business logic فقط
  */
 export class ProductService {
-    // ⭐ إعدادات الصور القابلة للتخصيص
-    static IMAGE_SETTINGS = {
-        MAX_IMAGES_PER_PRODUCT: 3,
-        MAX_IMAGE_URL_LENGTH: 500,
-        IMAGE_BASE_PATH: '/products/'
-    };
     /**
      * إنشاء منتج جديد
      */
@@ -379,3 +373,9 @@ export class ProductService {
         return response;
     }
 }
+// ⭐ إعدادات الصور القابلة للتخصيص
+ProductService.IMAGE_SETTINGS = {
+    MAX_IMAGES_PER_PRODUCT: 3,
+    MAX_IMAGE_URL_LENGTH: 500,
+    IMAGE_BASE_PATH: '/products/'
+};

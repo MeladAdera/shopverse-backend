@@ -1,4 +1,3 @@
-// src/config/database.ts
 import { Pool } from 'pg';
 
 // إنشاء connection pool

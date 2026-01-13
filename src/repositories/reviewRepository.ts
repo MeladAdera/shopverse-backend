@@ -1,4 +1,4 @@
-import { query } from '../config/database';
+import { query } from '../config/database.js';
 import { Review, CreateReviewData, ReviewWithUser, ProductReviewsSummary } from '../models/Review.js';
 
 export const reviewRepository = {

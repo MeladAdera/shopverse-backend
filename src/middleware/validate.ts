@@ -1,7 +1,7 @@
 // src/middleware/validate.ts - المصحح
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodError } from 'zod';
-import { ValidationError } from '../ errors/errorTypes'; 
+import { ValidationError } from '../ errors/errorTypes.js'; 
 
 /**
  * middleware للتحقق من صحة البيانات باستخدام Zod

@@ -1,4 +1,4 @@
-import { query } from '../config/database';
+import { query } from '../config/database.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -40,4 +40,4 @@ export const runMigrations = async (): Promise<void> => {
 };
 
 // Also export the testConnection function if it doesn't exist
-export { testConnection } from '../config/database';
+export { testConnection } from '../config/database.js';

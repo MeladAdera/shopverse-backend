@@ -1,6 +1,6 @@
 // 📁 src/routes/orderRoutes.ts
 import express from 'express';
-import { orderController } from '../controllers/orderController';
+import { orderController } from '../controllers/orderController.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
