@@ -1,49 +1,17 @@
 "use strict";
-/// <reference types="node" />
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.staticFilesConfig = exports.deleteImages = exports.deleteImageByUrl = exports.deleteFile = exports.validateImageUpload = exports.uploadProductImage = exports.getImageUrl = exports.getImageUrls = exports.validateProductImages = exports.uploadProductImages = void 0;
+// src/config/multer.ts
 const multer_1 = __importDefault(require("multer"));
 const errorTypes_js_1 = require("../ errors/errorTypes.js");
-// الآن الـ imports رح تشتغل
-const path = __importStar(require("path"));
-const fs = __importStar(require("fs"));
-;
+// استخدام require مع ignore لتفادي مشاكل TypeScript
+// @ts-ignore
+const path = require('path');
+// @ts-ignore  
+const fs = require('fs');
 // 1. إنشاء مجلدات التحميل إذا لم تكن موجودة
 const createUploadsFolders = () => {
     const folders = [
@@ -101,29 +69,27 @@ const productStorage = multer_1.default.diskStorage({
     }
 });
 // ============================================
-// ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐
-// ⭐ الحل الجديد: Multer متعدد الصور ⭐
+// ⭐ MIDDLEWARE لرفع حتى 3 صور (للصور المتعددة)
 // ============================================
-// 5. ⭐ MIDDLEWARE لرفع حتى 3 صور (للصور المتعددة)
+// 5. ⭐ MIDDLEWARE لرفع حتى 3 صور
 exports.uploadProductImages = (0, multer_1.default)({
     storage: productStorage,
     fileFilter,
     limits: {
         fileSize: 5 * 1024 * 1024, // 5MB لكل صورة
     }
-}).array('images', 3); // ⭐ 'images' (جمع) - حتى 3 ملفات
+}).array('images', 3);
 // 6. ⭐ MIDDLEWARE للتحقق من الصور المتعددة
 const validateProductImages = (req, res, next) => {
-    if (!req.files || req.files.length === 0) {
+    const files = req.files;
+    if (!files || files.length === 0) {
         throw new errorTypes_js_1.ValidationError('يجب رفع صورة واحدة على الأقل للمنتج');
     }
-    const files = req.files;
     if (files.length > 3) {
         throw new errorTypes_js_1.ValidationError('لا يمكن رفع أكثر من 3 صور للمنتج الواحد');
     }
-    // تحديث هنا لاستخدام /public/products/
     files.forEach((file) => {
-        file.publicUrl = `/public/products/${file.filename}`; // ✅ التحديث هنا
+        file.publicUrl = `/public/products/${file.filename}`;
     });
     next();
 };
@@ -132,23 +98,22 @@ exports.validateProductImages = validateProductImages;
 const getImageUrls = (files) => {
     if (!files || files.length === 0)
         return [];
-    return files.map(file => file.publicUrl || `/public/products/${file.filename}` // ✅ تحديث هنا أيضًا
-    );
+    return files.map(file => file.publicUrl || `/public/products/${file.filename}`);
 };
 exports.getImageUrls = getImageUrls;
 // 8. دالة للحصول على رابط صورة واحدة
 const getImageUrl = (filename) => {
-    return `/public/products/${filename}`; // ✅ إضافة /public/
+    return `/public/products/${filename}`;
 };
 exports.getImageUrl = getImageUrl;
-// 9. ⭐ للتوافق: MIDDLEWARE لصورة واحدة فقط (للرجعية)
+// 9. ⭐ للتوافق: MIDDLEWARE لصورة واحدة فقط
 exports.uploadProductImage = (0, multer_1.default)({
     storage: productStorage,
     fileFilter,
     limits: {
         fileSize: 5 * 1024 * 1024,
     }
-}).single('image'); // 'image' (مفرد) - للتوافق
+}).single('image');
 // 10. ⭐ للتوافق: التحقق من صورة واحدة
 const validateImageUpload = (req, res, next) => {
     if (!req.file) {
@@ -167,8 +132,10 @@ const deleteFile = (filePath) => {
         if (filePath.startsWith('/products/') || filePath.startsWith('products/')) {
             fullPath = path.join('public', filePath);
         }
+        // @ts-ignore
         const absolutePath = path.isAbsolute(fullPath)
             ? fullPath
+            // @ts-ignore
             : path.join(process.cwd(), fullPath);
         fs.unlink(absolutePath, (error) => {
             if (error) {
@@ -202,20 +169,15 @@ exports.staticFilesConfig = {
     productsPath: 'public/products'
 };
 exports.default = {
-    uploadProductImages: exports.uploadProductImages, // ⭐ الرئيسي: لرفع 3 صور
-    validateProductImages: // ⭐ الرئيسي: لرفع 3 صور
-    exports.validateProductImages, // ⭐ الرئيسي: للتحقق من 3 صور
-    uploadProductImage: // ⭐ الرئيسي: للتحقق من 3 صور
-    exports.uploadProductImage, // ⭐ للتوافق: لصورة واحدة
-    validateImageUpload: // ⭐ للتوافق: لصورة واحدة
-    exports.validateImageUpload, // ⭐ للتوافق: للتحقق من صورة واحدة
-    getImageUrl: // ⭐ للتوافق: للتحقق من صورة واحدة
-    exports.getImageUrl,
-    getImageUrls: exports.getImageUrls, // ⭐ للحصول على روابط متعددة
-    deleteFile: // ⭐ للحصول على روابط متعددة
-    exports.deleteFile,
+    uploadProductImages: exports.uploadProductImages,
+    validateProductImages: exports.validateProductImages,
+    uploadProductImage: exports.uploadProductImage,
+    validateImageUpload: exports.validateImageUpload,
+    getImageUrl: exports.getImageUrl,
+    getImageUrls: exports.getImageUrls,
+    deleteFile: exports.deleteFile,
     deleteImageByUrl: exports.deleteImageByUrl,
-    deleteImages: exports.deleteImages, // ⭐ لحذف مجموعة صور
+    deleteImages: exports.deleteImages,
     allowedMimeTypes,
     staticFilesConfig: exports.staticFilesConfig
 };

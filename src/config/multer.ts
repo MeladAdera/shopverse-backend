@@ -1,13 +1,32 @@
-/// <reference types="node" />
-
+// src/config/multer.ts
 import multer from 'multer';
 import { Request, Response, NextFunction } from 'express';
 import { ValidationError } from '../ errors/errorTypes.js';
 
-// الآن الـ imports رح تشتغل
-import * as path from 'path';
-import * as fs from 'fs';;
+// استخدام require مع ignore لتفادي مشاكل TypeScript
+// @ts-ignore
+const path = require('path');
+// @ts-ignore  
+const fs = require('fs');
 
+// تعريف types للملفات
+declare global {
+  namespace Express {
+    namespace Multer {
+      interface File {
+        fieldname: string;
+        originalname: string;
+        encoding: string;
+        mimetype: string;
+        size: number;
+        destination: string;
+        filename: string;
+        path: string;
+        buffer: Buffer;
+      }
+    }
+  }
+}
 
 // 1. إنشاء مجلدات التحميل إذا لم تكن موجودة
 const createUploadsFolders = (): void => {
@@ -30,7 +49,7 @@ const createUploadsFolders = (): void => {
 createUploadsFolders();
 
 // 2. أنواع الملفات المسموحة
-const allowedMimeTypes = {
+const allowedMimeTypes: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/jpg': 'jpg',
   'image/png': 'png',
@@ -45,7 +64,7 @@ const fileFilter = (
   cb: multer.FileFilterCallback
 ): void => {
   try {
-    if (allowedMimeTypes[file.mimetype as keyof typeof allowedMimeTypes]) {
+    if (allowedMimeTypes[file.mimetype]) {
       cb(null, true);
     } else {
       cb(new ValidationError(
@@ -85,18 +104,17 @@ const productStorage = multer.diskStorage({
 });
 
 // ============================================
-// ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐ ⭐
-// ⭐ الحل الجديد: Multer متعدد الصور ⭐
+// ⭐ MIDDLEWARE لرفع حتى 3 صور (للصور المتعددة)
 // ============================================
 
-// 5. ⭐ MIDDLEWARE لرفع حتى 3 صور (للصور المتعددة)
+// 5. ⭐ MIDDLEWARE لرفع حتى 3 صور
 export const uploadProductImages = multer({
   storage: productStorage,
   fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB لكل صورة
   }
-}).array('images', 3); // ⭐ 'images' (جمع) - حتى 3 ملفات
+}).array('images', 3);
 
 // 6. ⭐ MIDDLEWARE للتحقق من الصور المتعددة
 export const validateProductImages = (
@@ -104,19 +122,18 @@ export const validateProductImages = (
   res: Response, 
   next: NextFunction
 ): void => {
-  if (!req.files || (req.files as Express.Multer.File[]).length === 0) {
+  const files = req.files as Express.Multer.File[];
+  
+  if (!files || files.length === 0) {
     throw new ValidationError('يجب رفع صورة واحدة على الأقل للمنتج');
   }
-  
-  const files = req.files as Express.Multer.File[];
   
   if (files.length > 3) {
     throw new ValidationError('لا يمكن رفع أكثر من 3 صور للمنتج الواحد');
   }
   
-  // تحديث هنا لاستخدام /public/products/
   files.forEach((file: any) => {
-    file.publicUrl = `/public/products/${file.filename}`; // ✅ التحديث هنا
+    file.publicUrl = `/public/products/${file.filename}`;
   });
   
   next();
@@ -127,24 +144,23 @@ export const getImageUrls = (files: Express.Multer.File[]): string[] => {
   if (!files || files.length === 0) return [];
   
   return files.map(file => 
-    (file as any).publicUrl || `/public/products/${file.filename}` // ✅ تحديث هنا أيضًا
+    (file as any).publicUrl || `/public/products/${file.filename}`
   );
 };
 
 // 8. دالة للحصول على رابط صورة واحدة
 export const getImageUrl = (filename: string): string => {
-  return `/public/products/${filename}`; // ✅ إضافة /public/
+  return `/public/products/${filename}`;
 };
 
-
-// 9. ⭐ للتوافق: MIDDLEWARE لصورة واحدة فقط (للرجعية)
+// 9. ⭐ للتوافق: MIDDLEWARE لصورة واحدة فقط
 export const uploadProductImage = multer({
   storage: productStorage,
   fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024,
   }
-}).single('image'); // 'image' (مفرد) - للتوافق
+}).single('image');
 
 // 10. ⭐ للتوافق: التحقق من صورة واحدة
 export const validateImageUpload = (
@@ -172,8 +188,10 @@ export const deleteFile = (filePath: string): Promise<boolean> => {
       fullPath = path.join('public', filePath);
     }
     
+    // @ts-ignore
     const absolutePath = path.isAbsolute(fullPath) 
       ? fullPath 
+      // @ts-ignore
       : path.join(process.cwd(), fullPath);
     
     fs.unlink(absolutePath, (error) => {
@@ -219,15 +237,15 @@ export const staticFilesConfig = {
 };
 
 export default {
-  uploadProductImages,      // ⭐ الرئيسي: لرفع 3 صور
-  validateProductImages,    // ⭐ الرئيسي: للتحقق من 3 صور
-  uploadProductImage,       // ⭐ للتوافق: لصورة واحدة
-  validateImageUpload,      // ⭐ للتوافق: للتحقق من صورة واحدة
+  uploadProductImages,
+  validateProductImages,
+  uploadProductImage,
+  validateImageUpload,
   getImageUrl,
-  getImageUrls,             // ⭐ للحصول على روابط متعددة
+  getImageUrls,
   deleteFile,
   deleteImageByUrl,
-  deleteImages,             // ⭐ لحذف مجموعة صور
+  deleteImages,
   allowedMimeTypes,
   staticFilesConfig
 };
