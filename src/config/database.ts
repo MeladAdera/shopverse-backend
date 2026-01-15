@@ -6,14 +6,14 @@ dotenv.config();
 
 console.log('🎯 Connecting to NEW PostgreSQL database...');
 
-// @ts-ignore
+// @ts-ignore 
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
   console.error('❌ DATABASE_URL missing from .env file');
   console.log('📋 Current .env content:');
   console.log(process.env);
-  // @ts-ignore
+  // @ts-ignore 
   process.exit(1);
 }
 
